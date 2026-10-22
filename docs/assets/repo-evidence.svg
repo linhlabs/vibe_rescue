@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 1226" role="img">
+<defs><marker id="next" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L8 4 L0 8 Z" fill="#40c9a2"/></marker><marker id="evidence" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L8 4 L0 8 Z" fill="#d58c49"/></marker></defs>
+<style>text{font-family:system-ui,sans-serif}.heading{font-size:24px;font-weight:750;fill:#f8fafc}.title{font-size:16px;font-weight:700;fill:#e2e8f0}.small{font-size:13px;fill:#b8c9df}.guard{font-size:13px;fill:#ffdfad}.label{font-size:14px;font-weight:700;fill:#93bff0;letter-spacing:.04em}.node{fill:#17233a;stroke:#4c6b91;stroke-width:1.5}.risk{fill:#2b2230;stroke:#d58c49;stroke-width:1.2}.line{stroke:#40c9a2;stroke-width:3;fill:none;marker-end:url(#next)}.cross{stroke:#d58c49;stroke-width:2;marker-end:url(#evidence)}</style>
+<rect width="1180" height="1226" fill="#0b1220"/>
+<text x="30" y="43" class="heading">02 · MAP, PROVE và đường bằng chứng</text>
+<text x="30" y="70" class="label">NGUỒN / LỜI GỌI</text>
+<text x="683" y="70" class="label">CHẶN / LỖI / ĐẦU RA</text>
+<rect class="node" x="28" y="87" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="115">01  _stage_map → context_pack.collect</text>
+<text class="small" x="47" y="141">scripts/rescue_voyage.py:99</text>
+<text class="small" x="47" y="164">session/map/</text>
+<path class="cross" d="M 640 137 L 663 137"/>
+<rect class="risk" x="670" y="87" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="115">Exit code phải 0</text>
+<text class="small" x="689" y="142">Lỗi context_pack block MAP</text>
+<text class="small" x="689" y="165">Pack có thể chứa dữ liệu riêng tư; xem trước khi gửi LLM</text>
+<path class="line" d="M 330 185 L 330 205"/>
+<rect class="node" x="28" y="211" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="239">02  _stage_map → recon.assets</text>
+<text class="small" x="47" y="265">tools/meta/recon.py:117</text>
+<text class="small" x="47" y="288">session/map/recon.json</text>
+<path class="cross" d="M 640 261 L 663 261"/>
+<rect class="risk" x="670" y="211" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="239">recon.json phải tồn tại</text>
+<text class="small" x="689" y="266">Thiếu artifact block MAP</text>
+<text class="small" x="689" y="289">Recon là inventory, không chứng minh luồng runtime</text>
+<path class="line" d="M 330 309 L 330 329"/>
+<rect class="node" x="28" y="335" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="363">03  _stage_prove → fanout.main</text>
+<text class="small" x="47" y="389">scripts/rescue_voyage.py:113</text>
+<text class="small" x="47" y="412">prove/raw/*.json, run.summary.json</text>
+<path class="cross" d="M 640 385 L 663 385"/>
+<rect class="risk" x="670" y="335" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="363">Fanout exit 0 mới merge</text>
+<text class="small" x="689" y="390">Tool failed block PROVE</text>
+<text class="small" x="689" y="413">Skipped có thể vẫn được chấp nhận</text>
+<path class="line" d="M 330 433 L 330 453"/>
+<rect class="node" x="28" y="459" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="487">04  fanout.one → scan.main</text>
+<text class="small" x="47" y="513">scripts/fanout.py:63</text>
+<text class="small" x="47" y="536">raw/&lt;tool&gt;.json</text>
+<path class="cross" d="M 640 509 L 663 509"/>
+<rect class="risk" x="670" y="459" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="487">Thread pool; per-tool 1800s</text>
+<text class="small" x="689" y="514">Output thiếu tạo failed record</text>
+<text class="small" x="689" y="537">Tổng thời gian/cost tăng theo tool; scanner có side effect</text>
+<path class="line" d="M 330 557 L 330 577"/>
+<rect class="node" x="28" y="583" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="611">05  scan.precheck → cmd_for</text>
+<text class="small" x="47" y="637">tools/meta/scan.py:273</text>
+<text class="small" x="47" y="660">Command hoặc skipped reason</text>
+<path class="cross" d="M 640 633 L 663 633"/>
+<rect class="risk" x="670" y="583" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="611">Config/manifest/công cụ cần có</text>
+<text class="small" x="689" y="638">Unknown tool bị skip</text>
+<text class="small" x="689" y="661">Unknown tool trong danh sách không làm fanout fail</text>
+<path class="line" d="M 330 681 L 330 701"/>
+<rect class="node" x="28" y="707" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="735">06  scan.collect_findings → parsers</text>
+<text class="small" x="47" y="761">tools/meta/scan.py:357</text>
+<text class="small" x="47" y="784">findings per tool + exit_code</text>
+<path class="cross" d="M 640 757 L 663 757"/>
+<rect class="risk" x="670" y="707" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="735">Parse lỗi hoặc exit ngoài chính sách trả error</text>
+<text class="small" x="689" y="762">Parser/report thiếu hoặc fatal exit là failed</text>
+<text class="small" x="689" y="785">Một số parser còn cần schema/coverage bytes chặt hơn</text>
+<path class="line" d="M 330 805 L 330 825"/>
+<rect class="node" x="28" y="831" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="859">07  merge_findings.load_raw → merge</text>
+<text class="small" x="47" y="885">scripts/merge_findings.py:37</text>
+<text class="small" x="47" y="908">findings.json/.md, SARIF</text>
+<path class="cross" d="M 640 881 L 663 881"/>
+<rect class="risk" x="670" y="831" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="859">Bỏ record không có file</text>
+<text class="small" x="689" y="886">Raw JSON hỏng được liệt kê errors</text>
+<text class="small" x="689" y="909">Redaction pattern-based, không bảo đảm kín PII</text>
+<path class="line" d="M 330 929 L 330 949"/>
+<rect class="node" x="28" y="955" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="983">08  _coverage_problems → delta_gate</text>
+<text class="small" x="47" y="1009">scripts/rescue_loop.py:59</text>
+<text class="small" x="47" y="1032">Baseline hoặc delta verdict</text>
+<path class="cross" d="M 640 1005 L 663 1005"/>
+<rect class="risk" x="670" y="955" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="983">Mất ok coverage block; delta key tool|file|rule</text>
+<text class="small" x="689" y="1010">New finding trả 2</text>
+<text class="small" x="689" y="1033">Finding cũ ở dòng khác không tính new; skip→skip vẫn pass</text>
+<path class="line" d="M 330 1053 L 330 1073"/>
+<rect class="node" x="28" y="1079" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="1107">09  run_target.main (lối MAP+PROVE khác)</text>
+<text class="small" x="47" y="1133">scripts/run_target.py:28</text>
+<text class="small" x="47" y="1156">reports/targets/&lt;name&gt;/</text>
+<path class="cross" d="M 640 1129 L 663 1129"/>
+<rect class="risk" x="670" y="1079" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="1107">MAP/recon/fanout/merge phải exit 0, artifact mới và ít nhất m</text>
+<text class="small" x="689" y="1134">Bước lỗi block trước khi lưu baseline</text>
+<text class="small" x="689" y="1157">Scanner skipped còn cần required/optional policy</text>
+</svg>

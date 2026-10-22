@@ -1,0 +1,34 @@
+# config.toml — CHỌN LLM CHO TỪNG VAI TRÒ (write / verify / audit)
+# Key KHÔNG BAO GIỜ nằm trong repo — auth lấy từ env (vd ~/.bashrc).
+# Built-in templates: claude (-p), codex (exec). Other CLI names receive a
+# generic prompt argument and need adapter-specific verification before use.
+# model: "" = mặc định của CLI. extra_args: cờ thêm khi gọi.
+
+[roles.write]        # AI VIẾT: advisor (lập plan) + executor (sửa theo plan đã duyệt)
+cli = "claude"
+model = ""
+extra_args = []
+
+[roles.verify]       # AI KIỂM: reviewer 4-mắt (verdict APPROVE/REVISE/BLOCK) — độc lập với write
+cli = "codex"
+model = ""
+extra_args = []
+
+[roles.audit]        # AI ĐÁNH GIÁ: auditor viết REVIEW.md + PROPOSALS.md cho team
+cli = "claude"
+model = ""
+# LƯU Ý: giữ extra_args trống — claude headless (chỉ API key) ghi file OK;
+# thêm --allowedTools/--permission-mode lại bắt buộc OAuth login (thử nghiệm thật 2026-08-29).
+extra_args = []
+
+# Ví dụ dùng BẤT KỲ server kiểu OpenAI (model mở tự host hoặc model host sẵn), thay cho claude/codex:
+#   [roles.audit]
+#   cli = "openai"
+#   model = "<id model đúng như /v1/models>"
+#   extra_args = ["--base-url", "https://your-server.example/v1"]
+# Khóa lấy từ biến môi trường VIBE_AGENT_API_KEY (hoặc --api-key-env TÊN); server local không cần khóa.
+# Xem scripts/openai_agent.py. Nên dùng model khác nhau cho write và verify.
+
+[notes]
+kimi = "Generic CLI invocation only; verify an adapter before using kimi for an agent stage"
+default_profile = "Mặc định: một chương trình/model viết (write), chương trình/model KHÁC audit và verify"

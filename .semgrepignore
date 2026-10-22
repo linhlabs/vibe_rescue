@@ -1,0 +1,4 @@
+# semgrep: bỏ qua fixture vi phạm có chủ đích (test tự chạy với --no-ignore)
+tests/fixtures/
+reports/
+.ipynb_checkpoints/

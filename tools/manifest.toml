@@ -1,0 +1,83 @@
+# tools/manifest.toml — SINGLE SOURCE OF TRUTH cho toolchain của vibe_rescue.
+# scan.py và fanout.py ĐỌC file này (tomllib, stdlib) — không nhân bản pin ở nơi khác.
+# verified: 2026-08-28 (pip/npm index + GitHub releases API).
+# Thay đổi tool = sửa file NÀY, không sửa code.
+
+[core.order]
+# Thứ tự fanout chốt các tool trong [core.*]. Thêm tool = thêm dòng ở đây + parser trong parsers.py.
+tools = ["ruff", "vulture", "radon", "bandit", "jscpd", "knip",
+         "dependency-cruiser", "markdownlint-cli", "deptry", "import-linter", "semgrep",
+         "archgraph"]
+# archgraph = builtin (tools/meta/archgraph.py, stdlib) — đọc import-graph/cycles/hub
+
+[core.python]              # chạy qua: uvx --from <pkg>==<ver>
+ruff = "0.16.5"
+vulture = "2.16"
+radon = "6.0.1"
+bandit = "1.9.4"
+deptry = "0.25.1"
+import-linter = "2.13"
+semgrep = "1.175.0"
+
+[core.js]                  # chạy qua: npx -y <pkg>@<ver>
+repomix = "1.18.0"
+jscpd = "5.0.16"
+knip = "6.32.3"
+dependency-cruiser = "18.2.0"
+markdownlint-cli = "0.49.1"
+
+[tool_options.bandit]
+# B101 (assert) và subprocess-check trong tests/ là nhiễu đã biết (tests được phép assert).
+# B4x/B6x vẫn quét trên code thật — đó là tín hiệu cho auditor_security.
+exclude_paths = ["tests"]
+
+[tool_options.semgrep]
+# Thư mục rule mặc định (relative tới repo gốc harness này); override bằng --rules.
+rules_dir = "tools/rules"
+# Redaction self-test constructs fake key-like strings on purpose; scanning it is a
+# false positive (same reason tests/fixtures/semgrep is excluded from lint tools).
+exclude_paths = ["tests/test_v0_4_hardening.py"]
+
+[tool_options.ruff]
+# Fixture vi phạm có chủ đích (semgrep test) — không để lint máy báo chính fixture.
+exclude_paths = ["tests/fixtures/semgrep"]
+
+[tool_options.vulture]
+exclude_paths = ["tests/fixtures/semgrep"]
+
+[binaries]                 # tải về tools/bin/ bằng scripts/install_binaries.py (không commit binary)
+trivy = { url = "https://github.com/aquasecurity/trivy/releases", tag = "v0.76.1", asset = "trivy_0.76.1_Linux-64bit.tar.gz", sha256 = "c7cbe3137fb8a48a17574bede3dd6beb16742d1e9772929940fc90082c39d9c0", license = "Apache-2.0" }
+gitleaks = { url = "https://github.com/gitleaks/gitleaks/releases", tag = "v8.30.1", asset = "gitleaks_8.30.1_linux_x64.tar.gz", sha256 = "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb", license = "MIT" }
+osv-scanner = { url = "https://github.com/google/osv-scanner/releases", tag = "v2.7.0", asset = "osv-scanner_linux_amd64", sha256 = "160c6253e2922e9e0a6a9771c5c4c40a4b3c6090b34a3cdd5e80c96cc2e4218b", license = "Apache-2.0" }
+lychee = { url = "https://github.com/lycheeverse/lychee/releases", tag = "lychee-v0.24.2", asset = "lychee-x86_64-unknown-linux-gnu.tar.gz", sha256 = "1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a", license = "Apache-2.0" }
+vale = { url = "https://github.com/errata-ai/vale/releases", tag = "v3.24.0", asset = "vale_3.24.0_Linux_64-bit.tar.gz", sha256 = "867534ddb678abca7f214bc4706ead0922bd5252ffe8035fc227013f66c8b214", license = "MIT" }
+ast-grep = { url = "https://github.com/ast-grep/ast-grep/releases", tag = "0.51.0", asset = "app-x86_64-unknown-linux-gnu.zip", binary = "ast-grep", sha256 = "a7eead5552d3a8daad70f5d50d935da44bd0c138e946b5b0a96b1d38169fa639", license = "MIT" }
+
+[tier3.python]             # chạy khi target có dấu hiệu tương ứng (xem docs/REFERENCE_STACK.md)
+mutmut = "3.7.0"
+schemathesis = "4.25.2"
+
+[tier3.js]
+stryker-js = "latest"
+promptfoo = "0.122.2"
+agent-scan = { source = "snyk/agent-scan", note = "cài từ git repo snyk/agent-scan; chạy TRONG container disposable (nó thực thi config của target)" }
+
+[mcp]
+mcp-conformance = { version = "0.1.16", note = "npm @modelcontextprotocol/conformance — protocol gate ở LOCK phase" }
+
+[notes]
+gitnexus = "PolyForm Noncommercial — không dùng mặc định; cần legal review"
+rulesync = "16.17.0 (npm) — phase LOCK: scripts/lock_rulesync.py (doctor/generate/drift)"
+
+# Source checkouts để khảo sát/đối chiếu logic đa ngôn ngữ. scripts/bootstrap_logic_tools.py
+# tải đúng commit vào tools/upstream/ (gitignored); KHÔNG tự gửi target cho LLM.
+[logic_map.sources]
+codeboarding = { url = "https://github.com/CodeBoarding/CodeBoarding.git", commit = "bb6a160c71db4ca364a3672c596a0e629461665a" }
+pyan3 = { url = "https://github.com/Technologicat/pyan.git", commit = "ea91473f7dd77a269a64228a588cda9a00a57470" }
+cargo_modules = { url = "https://github.com/regexident/cargo-modules.git", commit = "48455ca5961ccfc3196b5d6bd5dd3efec97374c0" }
+
+[logic_map.packages]
+pyan3 = "2.9.0"
+cargo_modules = "0.27.0"
+typescript = "5.9.3"
+tree_sitter_language_pack = "0.13.0"

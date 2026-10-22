@@ -1,0 +1,14 @@
+# gitleaks config — bỏ qua mẫu rule/fixture có chủ đích (chính rule số 1 của harness:
+# không để công cụ quét báo chính luật của nó).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "chỉ bỏ qua rule pack, fixture giả và cache; luôn quét evidence/source"
+paths = [
+  '''tools/rules/''',
+  '''tests/fixtures/''',
+  '''\.ipynb_checkpoints/''',
+  '''__pycache__/''',
+  '''\.pyc''',
+]

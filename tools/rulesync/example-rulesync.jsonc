@@ -1,0 +1,13 @@
+// Example rulesync config (rulesync.jsonc) — SAO CHÉP vào repo mục tiêu khi LOCK.
+// Quy trình đầy đủ (xem docs/PIPELINE.md phase 5):
+//   1. npx rulesync init            (trong target)
+//   2. npx rulesync import --targets claudecode,codexcli,cursor,copilot
+//   3. sửa conflict -> .rulesync/  là source of truth
+//   4. scripts/lock_rulesync.py --target <repo> --mode drift   (chạy trong CI)
+// File này CHỈ là mẫu — format thật do rulesync quyết định, chạy init để sinh bản chuẩn.
+{
+  "version": 1,
+  "tools": ["claudecode", "codexcli", "cursor", "copilot"],
+  "features": ["rules", "skills", "mcp", "permissions", "checks"],
+  "note": "XEM tools/rulesync/example-rulesync.jsonc — đây là placeholder hợp lệ tối thiểu."
+}

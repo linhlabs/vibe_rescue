@@ -1,0 +1,15 @@
+{
+  "_note": "Scenario mẫu cho @modelcontextprotocol/conformance. Xem schema tại repo modelcontextprotocol/conformance (scenarios/*.yaml). Sao chép + chỉnh theo MCP server của target trước khi chạy (LOCK phase, orchestrator).",
+  "scenarios": [
+    {
+      "name": "tool-list-and-call",
+      "description": "Server phải liệt kê tools và gọi được tool read-only không lỗi protocol",
+      "steps": [
+        {"action": "initialize", "expect": {"protocolVersion": "2025-06-18"}},
+        {"action": "tools/list", "expect": {"tools": {"min": 1}}},
+        {"action": "tools/call", "tool": "echo", "arguments": {"text": "ping"},
+         "expect": {"isError": false}}
+      ]
+    }
+  ]
+}

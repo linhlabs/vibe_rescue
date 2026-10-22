@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 1226" role="img">
+<defs><marker id="next" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L8 4 L0 8 Z" fill="#40c9a2"/></marker><marker id="evidence" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L8 4 L0 8 Z" fill="#d58c49"/></marker></defs>
+<style>text{font-family:system-ui,sans-serif}.heading{font-size:24px;font-weight:750;fill:#f8fafc}.title{font-size:16px;font-weight:700;fill:#e2e8f0}.small{font-size:13px;fill:#b8c9df}.guard{font-size:13px;fill:#ffdfad}.label{font-size:14px;font-weight:700;fill:#93bff0;letter-spacing:.04em}.node{fill:#17233a;stroke:#4c6b91;stroke-width:1.5}.risk{fill:#2b2230;stroke:#d58c49;stroke-width:1.2}.line{stroke:#40c9a2;stroke-width:3;fill:none;marker-end:url(#next)}.cross{stroke:#d58c49;stroke-width:2;marker-end:url(#evidence)}</style>
+<rect width="1180" height="1226" fill="#0b1220"/>
+<text x="30" y="43" class="heading">04 · PLAN, candidate, reviewer và rollback</text>
+<text x="30" y="70" class="label">NGUỒN / LỜI GỌI</text>
+<text x="683" y="70" class="label">CHẶN / LỖI / ĐẦU RA</text>
+<rect class="node" x="28" y="87" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="115">01  advisor.md → plan_check.check_plan</text>
+<text class="small" x="47" y="141">scripts/plan_check.py:81</text>
+<text class="small" x="47" y="164">PLAN-*.md hợp lệ</text>
+<path class="cross" d="M 640 137 L 663 137"/>
+<rect class="risk" x="670" y="87" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="115">Trả 2 nếu plan thiếu/không khớp</text>
+<text class="small" x="689" y="142">Plan lỗi không được accept</text>
+<text class="small" x="689" y="165">Máy không chứng minh bước Verification thật sự đủ</text>
+<path class="line" d="M 330 185 L 330 205"/>
+<rect class="node" x="28" y="211" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="239">02  rescue_loop.main preflight</text>
+<text class="small" x="47" y="265">scripts/rescue_loop.py:75</text>
+<text class="small" x="47" y="288">loop.json round 0</text>
+<path class="cross" d="M 640 261 L 663 261"/>
+<rect class="risk" x="670" y="211" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="239">Cần baseline SHA đúng HEAD</text>
+<text class="small" x="689" y="266">Vi phạm trả BLOCK</text>
+<text class="small" x="689" y="289">Untracked target files không bị _tracked_clean phát hiện</text>
+<path class="line" d="M 330 309 L 330 329"/>
+<rect class="node" x="28" y="335" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="363">03  guards.run_probe before</text>
+<text class="small" x="47" y="389">scripts/guards.py:42</text>
+<text class="small" x="47" y="412">probe_before</text>
+<path class="cross" d="M 640 385 L 663 385"/>
+<rect class="risk" x="670" y="335" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="363">Mọi rc=0</text>
+<text class="small" x="689" y="390">Baseline probe đỏ BLOCK</text>
+<text class="small" x="689" y="413">Hash output quá nhạy với output không ổn định</text>
+<path class="line" d="M 330 433 L 330 453"/>
+<rect class="node" x="28" y="459" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="487">04  git worktree add → executor.md</text>
+<text class="small" x="47" y="513">scripts/rescue_loop.py:161</text>
+<text class="small" x="47" y="536">rescue/&lt;plan-id&gt; worktree</text>
+<path class="cross" d="M 640 509 L 663 509"/>
+<rect class="risk" x="670" y="459" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="487">Target HEAD/clean không đổi</text>
+<text class="small" x="689" y="514">Worktree lỗi BLOCK</text>
+<text class="small" x="689" y="537">Executor có filesystem/network quyền host</text>
+<path class="line" d="M 330 557 L 330 577"/>
+<rect class="node" x="28" y="583" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="611">05  plan_check.check_worktree</text>
+<text class="small" x="47" y="637">scripts/plan_check.py:129</text>
+<text class="small" x="47" y="660">Allowed diff</text>
+<path class="cross" d="M 640 633 L 663 633"/>
+<rect class="risk" x="670" y="583" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="611">Scope check trước và sau reviewer</text>
+<text class="small" x="689" y="638">Ngoài scope → REVISE</text>
+<text class="small" x="689" y="661">Nội dung độc hại trong file được phép vẫn cần reviewer</text>
+<path class="line" d="M 330 681 L 330 701"/>
+<rect class="node" x="28" y="707" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="735">06  git add/commit → candidate probe</text>
+<text class="small" x="47" y="761">scripts/rescue_loop.py:214</text>
+<text class="small" x="47" y="784">candidate_sha</text>
+<path class="cross" d="M 640 757 L 663 757"/>
+<rect class="risk" x="670" y="707" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="735">Probe rc+hash phải bằng before</text>
+<text class="small" x="689" y="762">Không commit/probe lệch → REVISE</text>
+<text class="small" x="689" y="785">Probe không bao trùm mọi hành vi</text>
+<path class="line" d="M 330 805 L 330 825"/>
+<rect class="node" x="28" y="831" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="859">07  fanout → merge → coverage → delta</text>
+<text class="small" x="47" y="885">scripts/rescue_loop.py:243</text>
+<text class="small" x="47" y="908">Round evidence</text>
+<path class="cross" d="M 640 881 L 663 881"/>
+<rect class="risk" x="670" y="831" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="859">Không failed, không mất coverage, 0 new</text>
+<text class="small" x="689" y="886">Vi phạm → REVISE</text>
+<text class="small" x="689" y="909">Skipped baseline có thể tiếp tục skipped</text>
+<path class="line" d="M 330 929 L 330 949"/>
+<rect class="node" x="28" y="955" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="983">08  reviewer.md → parse_verdict</text>
+<text class="small" x="47" y="1009">scripts/rescue_loop.py:38</text>
+<text class="small" x="47" y="1032">APPROVE/REVISE/BLOCK</text>
+<path class="cross" d="M 640 1005 L 663 1005"/>
+<rect class="risk" x="670" y="955" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="983">Candidate sạch, verdict cũ bị xóa</text>
+<text class="small" x="689" y="1010">Unknown/REVISE lặp tới max_rounds</text>
+<text class="small" x="689" y="1033">Verdict file là text, không chứng minh reviewer đã chạy test</text>
+<path class="line" d="M 330 1053 L 330 1073"/>
+<rect class="node" x="28" y="1079" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="1107">09  owner merge → postmerge probe</text>
+<text class="small" x="47" y="1133">scripts/rescue_voyage.py:350</text>
+<text class="small" x="47" y="1156">CHANGES.log + REVERT.md</text>
+<path class="cross" d="M 640 1129 L 663 1129"/>
+<rect class="risk" x="670" y="1079" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="1107">Target HEAD/candidate SHA không đổi</text>
+<text class="small" x="689" y="1134">Probe lệch auto-revert nếu HEAD sạch</text>
+<text class="small" x="689" y="1157">Side effect ngoài Git không rollback</text>
+</svg>

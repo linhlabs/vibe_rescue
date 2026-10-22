@@ -1,0 +1,10 @@
+rules:
+  - id: pii-vn-cccd
+    languages: [generic]
+    message: "PII: CCCD/CMND 12 số bị hardcode — cần khử/che cho PHI"
+    severity: ERROR
+    patterns:
+      - pattern-regex: '(?<![\d.5])\d{12}(?!\d)'
+    metadata:
+      category: pii
+      confidence: HIGH

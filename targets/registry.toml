@@ -1,0 +1,21 @@
+# targets/registry.toml — danh bạ repo mục tiêu cho run_target.py
+# path: relative tới repo gốc harness này (hoặc absolute).
+# Thêm target = thêm 1 khối [[targets]]; sau lần chạy đầu, baseline tự lưu ở
+# reports/targets/<name>/baseline/findings.json.
+
+[[targets]]
+name = "self"
+path = "."
+notes = "dogfood: chính repo harness — mọi vòng thay đổi phải so với baseline này"
+# mutmut (mutation) tốn ~30-60 phút cho suite này: chạy riêng khi refactor lớn,
+# không nằm trong self-run mặc định. schemathesis/promptfoo tự skip (không có OpenAPI/config).
+tools = ["ruff", "vulture", "radon", "bandit", "jscpd", "knip", "dependency-cruiser",
+         "markdownlint-cli", "deptry", "import-linter", "semgrep",
+         "trivy", "gitleaks", "osv-scanner", "lychee"]
+# rescue_voyage: owner gate mặc định + probe never-break (pytest = trung tài)
+owner = "interactive"
+probe = ["python3 -m pytest -q"]
+
+# Đăng ký target riêng ở bản sao local của file này, hoặc dùng
+# rescue_voyage.py --path /absolute/path/to/repo --tools ruff,semgrep.
+# Không commit đường dẫn, tên khách hàng hoặc credential của target vào repo public.

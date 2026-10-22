@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Vibe Rescue: từ bằng chứng tới thay đổi được duyệt",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    {"id": "main", "label": "Luồng cứu repo"},
+    {"id": "stop", "label": "Điều kiện dừng", "variant": "exception"}
+  ],
+  "mainPath": ["map", "prove", "review", "plan", "repair", "lock"],
+  "nodes": [
+    {"id": "map", "lane": "main", "col": 0, "type": "backend", "label": "MAP", "sublabel": "scope + logic atlas"},
+    {"id": "prove", "lane": "main", "col": 1, "type": "security", "label": "PROVE", "sublabel": "scanner + baseline"},
+    {"id": "review", "lane": "main", "col": 2, "type": "backend", "label": "REVIEW", "sublabel": "evidence + đề xuất"},
+    {"id": "plan", "lane": "main", "col": 3, "type": "security", "label": "PLAN", "sublabel": "SHA, scope, owner"},
+    {"id": "repair", "lane": "main", "col": 4, "type": "security", "label": "REPAIR", "sublabel": "probe + review"},
+    {"id": "lock", "lane": "main", "col": 5, "type": "database", "label": "LOCK", "sublabel": "ghi nhận thay đổi"},
+    {"id": "blocked", "lane": "stop", "col": 4, "type": "security", "label": "BLOCK", "sublabel": "giữ target"}
+  ],
+  "edges": [
+    {"from": "map", "to": "prove"},
+    {"from": "prove", "to": "review", "label": "evidence"},
+    {"from": "review", "to": "plan", "label": "đề xuất"},
+    {"from": "plan", "to": "repair", "label": "owner chấp thuận"},
+    {"from": "repair", "to": "lock", "label": "merge được duyệt"},
+    {"from": "repair", "to": "blocked", "label": "gate đỏ", "role": "error", "variant": "security"}
+  ],
+  "cards": [
+    {"dot": "cyan", "title": "Bằng chứng", "items": ["Graph tĩnh ghi rõ unknown; trace/test đối chứng nhánh runtime", "Scanner nào thiếu coverage thì chặn candidate"]},
+    {"dot": "emerald", "title": "Quyền quyết định", "items": ["Owner duyệt plan, chạy repair và merge", "Reviewer kiểm diff trước merge"]}
+  ]
+}

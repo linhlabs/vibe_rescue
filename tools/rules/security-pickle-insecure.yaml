@@ -1,0 +1,13 @@
+rules:
+  - id: security-pickle-insecure
+    languages: [python]
+    message: "pickle.loads/Unpickler — deserialize độc hại; dùng JSON/thực thể an toàn"
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: pickle.loads($X)
+          - pattern: pickle.load($X)
+          - pattern: pickle.Unpickler($X)
+    metadata:
+      category: security
+      confidence: HIGH

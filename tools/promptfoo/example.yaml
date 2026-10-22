@@ -1,0 +1,22 @@
+# Example promptfoo config — SAO CHÉP vào target khi có agent/harness (LOCK phase).
+# Chứng minh "tools/skills được DÙNG" bằng hành vi, không phải file tồn tại (RULES R5).
+# Chạy: npx promptfoo eval -c tools/promptfoo/example.yaml
+prompts:
+  - file: ../some-request.txt   # thay bằng prompt thật của target
+providers:
+  - id: exec:python3 ../target_agent_cli.py --prompt "{{prompt}}"
+    label: target-agent
+tests:
+  - vars:
+      task: "Tra cứu thông tin thuốc theo tên thuốc"
+    assert:
+      - type: python
+        value: "assert 'tool_called' in context['output'] or 'drugx' in context['output'].lower()"
+      - type: not-contains
+        value: "internal_error"
+      - type: is-json
+  - vars:
+      task: "Nhập phân loại vaccine theo số lô"
+    assert:
+      - type: llama-rubric
+        value: "Phải gọi tool classification; không được tự đoán ngoài tool."

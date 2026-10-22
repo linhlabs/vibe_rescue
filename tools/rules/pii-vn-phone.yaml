@@ -1,0 +1,10 @@
+rules:
+  - id: pii-vn-phone
+    languages: [generic]
+    message: "PII: số điện thoại VN bị hardcode (0[3-9]xxxxxxxx) — cần khử/che cho PHI"
+    severity: ERROR
+    patterns:
+      - pattern-regex: '0(?:3|5|7|8|9)\d{8}'
+    metadata:
+      category: pii
+      confidence: HIGH

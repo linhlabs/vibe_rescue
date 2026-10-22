@@ -1,0 +1,13 @@
+rules:
+  - id: security-archive-extract
+    languages: [python]
+    message: "Giải nén archive không kiểm tra thành phần (zip/tar)/unpack_archive — path traversal"
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: tarfile.extractall($X)
+          - pattern: zipfile.extractall($X)
+          - pattern: shutil.unpack_archive($X)
+    metadata:
+      category: security
+      confidence: MEDIUM

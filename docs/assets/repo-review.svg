@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 854" role="img">
+<defs><marker id="next" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L8 4 L0 8 Z" fill="#40c9a2"/></marker><marker id="evidence" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L8 4 L0 8 Z" fill="#d58c49"/></marker></defs>
+<style>text{font-family:system-ui,sans-serif}.heading{font-size:24px;font-weight:750;fill:#f8fafc}.title{font-size:16px;font-weight:700;fill:#e2e8f0}.small{font-size:13px;fill:#b8c9df}.guard{font-size:13px;fill:#ffdfad}.label{font-size:14px;font-weight:700;fill:#93bff0;letter-spacing:.04em}.node{fill:#17233a;stroke:#4c6b91;stroke-width:1.5}.risk{fill:#2b2230;stroke:#d58c49;stroke-width:1.2}.line{stroke:#40c9a2;stroke-width:3;fill:none;marker-end:url(#next)}.cross{stroke:#d58c49;stroke-width:2;marker-end:url(#evidence)}</style>
+<rect width="1180" height="854" fill="#0b1220"/>
+<text x="30" y="43" class="heading">03 · Prompt, audit và handoff cho team</text>
+<text x="30" y="70" class="label">NGUỒN / LỜI GỌI</text>
+<text x="683" y="70" class="label">CHẶN / LỖI / ĐẦU RA</text>
+<rect class="node" x="28" y="87" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="115">01  _stage_review → auditor_architecture.md</text>
+<text class="small" x="47" y="141">scripts/rescue_voyage.py:170</text>
+<text class="small" x="47" y="164">review/{README,REVIEW,PROPOSALS}.md</text>
+<path class="cross" d="M 640 137 L 663 137"/>
+<rect class="risk" x="670" y="87" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="115">Kiểm mtime README/REVIEW + PROPOSALS</text>
+<text class="small" x="689" y="142">CLI lỗi tạo template có notice</text>
+<text class="small" x="689" y="165">mtime là bằng chứng yếu; prompt có thể bỏ sót domain</text>
+<path class="line" d="M 330 185 L 330 205"/>
+<rect class="node" x="28" y="211" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="239">02  _review_templates</text>
+<text class="small" x="47" y="265">scripts/rescue_voyage.py:510</text>
+<text class="small" x="47" y="288">Template + scanner counts</text>
+<path class="cross" d="M 640 261 L 663 261"/>
+<rect class="risk" x="670" y="211" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="239">Gắn notice không có LLM audit</text>
+<text class="small" x="689" y="266">Không block REVIEW chỉ vì thiếu LLM</text>
+<text class="small" x="689" y="289">Người đọc có thể nhầm template với audit đầy đủ</text>
+<path class="line" d="M 330 309 L 330 329"/>
+<rect class="node" x="28" y="335" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="363">03  check_review_numbers.check</text>
+<text class="small" x="47" y="389">scripts/check_review_numbers.py:292</text>
+<text class="small" x="47" y="412">Bảng kiểm số</text>
+<path class="cross" d="M 640 385 L 663 385"/>
+<rect class="risk" x="670" y="335" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="363">Advisory, kết quả trong review</text>
+<text class="small" x="689" y="390">Lỗi checker không block REVIEW</text>
+<text class="small" x="689" y="413">Claim định tính/citation ngoài checker không được bảo đảm</text>
+<path class="line" d="M 330 433 L 330 453"/>
+<rect class="node" x="28" y="459" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="487">04  collect_evidence.main</text>
+<text class="small" x="47" y="513">scripts/collect_evidence.py:53</text>
+<text class="small" x="47" y="536">review/EVIDENCE/</text>
+<path class="cross" d="M 640 509 L 663 509"/>
+<rect class="risk" x="670" y="459" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="487">Exit !=0 block REVIEW</text>
+<text class="small" x="689" y="514">Package lỗi block stage</text>
+<text class="small" x="689" y="537">Mask là heuristic; review thủ công trước khi chia sẻ</text>
+<path class="line" d="M 330 557 L 330 577"/>
+<rect class="node" x="28" y="583" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="611">05  _crosscheck → crosscheck.md</text>
+<text class="small" x="47" y="637">scripts/rescue_voyage.py:148</text>
+<text class="small" x="47" y="660">cross-check.md nếu CLI viết</text>
+<path class="cross" d="M 640 633 L 663 633"/>
+<rect class="risk" x="670" y="583" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="611">Chỉ chạy khi không custom review cmd</text>
+<text class="small" x="689" y="638">CLI thiếu/lỗi fail-open</text>
+<text class="small" x="689" y="661">Không phải release gate; không chứng minh independent audit</text>
+<path class="line" d="M 330 681 L 330 701"/>
+<rect class="node" x="28" y="707" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="735">06  agents/auditor_* &amp; orchestrator</text>
+<text class="small" x="47" y="761">agents/orchestrator.md:1</text>
+<text class="small" x="47" y="784">Manual handoff nếu orchestrator gọi</text>
+<path class="cross" d="M 640 757 L 663 757"/>
+<rect class="risk" x="670" y="707" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="735">Chỉ auditor_architecture nạp trực tiếp trong voyage</text>
+<text class="small" x="689" y="762">Không có runtime fan-out tự động cho mọi auditor</text>
+<text class="small" x="689" y="785">Prompt assets có thể bị nhầm là đã thực thi</text>
+</svg>

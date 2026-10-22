@@ -1,0 +1,12 @@
+rules:
+  - id: security-eval-exec
+    languages: [python]
+    message: "eval()/exec() với input không tin cậy — RCE; dùng hàm chuyên biệt (ast.literal_eval...)"
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: eval($X)
+          - pattern: exec($X)
+    metadata:
+      category: security
+      confidence: HIGH

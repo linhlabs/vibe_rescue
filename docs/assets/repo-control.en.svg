@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 1102" role="img">
+<defs><marker id="next" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L8 4 L0 8 Z" fill="#40c9a2"/></marker><marker id="evidence" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L8 4 L0 8 Z" fill="#d58c49"/></marker></defs>
+<style>text{font-family:system-ui,sans-serif}.heading{font-size:24px;font-weight:750;fill:#f8fafc}.title{font-size:16px;font-weight:700;fill:#e2e8f0}.small{font-size:13px;fill:#b8c9df}.guard{font-size:13px;fill:#ffdfad}.label{font-size:14px;font-weight:700;fill:#93bff0;letter-spacing:.04em}.node{fill:#17233a;stroke:#4c6b91;stroke-width:1.5}.risk{fill:#2b2230;stroke:#d58c49;stroke-width:1.2}.line{stroke:#40c9a2;stroke-width:3;fill:none;marker-end:url(#next)}.cross{stroke:#d58c49;stroke-width:2;marker-end:url(#evidence)}</style>
+<rect width="1180" height="1102" fill="#0b1220"/>
+<text x="30" y="43" class="heading">01 · Orchestration, configuration and owner decisions</text>
+<text x="30" y="70" class="label">SOURCE / CALL</text>
+<text x="683" y="70" class="label">GUARD / FAILURE / OUTPUT</text>
+<rect class="node" x="28" y="87" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="115">01  main → parse_args</text>
+<text class="small" x="47" y="141">scripts/rescue_voyage.py:448</text>
+<text class="small" x="47" y="164">Ctx and voyage.json with state=running</text>
+<path class="cross" d="M 640 137 L 663 137"/>
+<rect class="risk" x="670" y="87" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="115">Target must contain .git; stage must be in STAGES</text>
+<text class="small" x="689" y="142">Return 2 for an invalid target or stage</text>
+<text class="small" x="689" y="165">Checks only for a .git path; repository trust is not verified</text>
+<path class="line" d="M 330 185 L 330 205"/>
+<rect class="node" x="28" y="211" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="239">02  load_registry → registry.toml</text>
+<text class="small" x="47" y="265">scripts/rescue_voyage.py:52</text>
+<text class="small" x="47" y="288">reg, target, scan_tools</text>
+<path class="cross" d="M 640 261 L 663 261"/>
+<rect class="risk" x="670" y="211" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="239">--path takes precedence over the named target</text>
+<text class="small" x="689" y="266">An unknown name does not create a target</text>
+<text class="small" x="689" y="289">Stale configuration can diverge from the target</text>
+<path class="line" d="M 330 309 L 330 329"/>
+<rect class="node" x="28" y="335" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="363">03  load_config → build_cmd</text>
+<text class="small" x="47" y="389">scripts/llm_config.py:34</text>
+<text class="small" x="47" y="412">CLI command strings by role</text>
+<path class="cross" d="M 640 385 L 663 385"/>
+<rect class="risk" x="670" y="335" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="363">Merge DEFAULTS; do not read an API key from the file</text>
+<text class="small" x="689" y="390">A missing CLI fails at its stage</text>
+<text class="small" x="689" y="413">Arbitrary CLIs have host privileges; small models have not bee</text>
+<path class="line" d="M 330 433 L 330 453"/>
+<rect class="node" x="28" y="459" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="487">04  Dialogue.ask → owner</text>
+<text class="small" x="47" y="513">scripts/dialogue.py:58</text>
+<text class="small" x="47" y="536">choice, note; QUESTION/ANSWER in file mode</text>
+<path class="cross" d="M 640 509 L 663 509"/>
+<rect class="risk" x="670" y="459" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="487">Random ID, nonce/binding, timeout and one-time answer consump</text>
+<text class="small" x="689" y="514">Invalid answer or timeout raises an exception and blocks voyag</text>
+<text class="small" x="689" y="537">Anyone who can write the answer directory may impersonate the </text>
+<path class="line" d="M 330 557 L 330 577"/>
+<rect class="node" x="28" y="583" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="611">05  STAGE_FUNCS: map→prove→review→plan→repair→lock</text>
+<text class="small" x="47" y="637">scripts/rescue_voyage.py:444</text>
+<text class="small" x="47" y="660">voyage.json done/blocked/error</text>
+<path class="cross" d="M 640 633 L 663 633"/>
+<rect class="risk" x="670" y="583" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="611">An rc or exception stops the loop</text>
+<text class="small" x="689" y="638">A failed stage returns 2 and records state</text>
+<text class="small" x="689" y="661">--stages permits stage omission; REPAIR checks only part of pr</text>
+<path class="line" d="M 330 681 L 330 701"/>
+<rect class="node" x="28" y="707" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="735">06  _stage_plan → approval hash</text>
+<text class="small" x="47" y="761">scripts/rescue_voyage.py:226</text>
+<text class="small" x="47" y="784">approvals/PLAN-*.json</text>
+<path class="cross" d="M 640 757 L 663 757"/>
+<rect class="risk" x="670" y="707" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="735">plan_check=0 plus accept required before saving hash/SHA</text>
+<text class="small" x="689" y="762">Rejection or three failed attempts stops</text>
+<text class="small" x="689" y="785">Approval file sits beside evidence and has no signature</text>
+<path class="line" d="M 330 805 L 330 825"/>
+<rect class="node" x="28" y="831" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="859">07  _stage_repair → second owner gate</text>
+<text class="small" x="47" y="885">scripts/rescue_voyage.py:285</text>
+<text class="small" x="47" y="908">Candidate branch or merge commit</text>
+<path class="cross" d="M 640 881 L 663 881"/>
+<rect class="risk" x="670" y="831" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="859">Hash and target HEAD must match</text>
+<text class="small" x="689" y="886">Rejection retains/discards candidate without merging</text>
+<text class="small" x="689" y="909">Subprocesses have host privileges; the worktree is not a sandb</text>
+<path class="line" d="M 330 929 L 330 949"/>
+<rect class="node" x="28" y="955" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="983">08  _stage_lock → rulesync drift</text>
+<text class="small" x="47" y="1009">scripts/rescue_voyage.py:403</text>
+<text class="small" x="47" y="1032">Drift result</text>
+<path class="cross" d="M 640 1005 L 663 1005"/>
+<rect class="risk" x="670" y="955" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="983">Explicit accept/reject</text>
+<text class="small" x="689" y="1010">Nonzero exit blocks when checks run</text>
+<text class="small" x="689" y="1033">Accepting with no configuration leads to a skip</text>
+</svg>

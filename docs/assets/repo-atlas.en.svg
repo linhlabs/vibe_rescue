@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 1474" role="img">
+<defs><marker id="next" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L8 4 L0 8 Z" fill="#40c9a2"/></marker><marker id="evidence" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L8 4 L0 8 Z" fill="#d58c49"/></marker></defs>
+<style>text{font-family:system-ui,sans-serif}.heading{font-size:24px;font-weight:750;fill:#f8fafc}.title{font-size:16px;font-weight:700;fill:#e2e8f0}.small{font-size:13px;fill:#b8c9df}.guard{font-size:13px;fill:#ffdfad}.label{font-size:14px;font-weight:700;fill:#93bff0;letter-spacing:.04em}.node{fill:#17233a;stroke:#4c6b91;stroke-width:1.5}.risk{fill:#2b2230;stroke:#d58c49;stroke-width:1.2}.line{stroke:#40c9a2;stroke-width:3;fill:none;marker-end:url(#next)}.cross{stroke:#d58c49;stroke-width:2;marker-end:url(#evidence)}</style>
+<rect width="1180" height="1474" fill="#0b1220"/>
+<text x="30" y="43" class="heading">05 · Multilanguage logic atlas and MIT release</text>
+<text x="30" y="70" class="label">SOURCE / CALL</text>
+<text x="683" y="70" class="label">GUARD / FAILURE / OUTPUT</text>
+<rect class="node" x="28" y="87" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="115">01  logic_atlas.resolve_scope → tracked_files</text>
+<text class="small" x="47" y="141">scripts/logic_atlas.py:46</text>
+<text class="small" x="47" y="164">Language-specific file inventory</text>
+<path class="cross" d="M 640 137 L 663 137"/>
+<rect class="risk" x="670" y="87" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="115">Reject path escape and symlinks</text>
+<text class="small" x="689" y="142">Bad scope raises error</text>
+<text class="small" x="689" y="165">Untracked code does not enter the graph</text>
+<path class="line" d="M 330 185 L 330 205"/>
+<rect class="node" x="28" y="211" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="239">02  classify → Python Pyan</text>
+<text class="small" x="47" y="265">scripts/logic_atlas.py:69</text>
+<text class="small" x="47" y="288">python-calls.dot and HTML/SVG</text>
+<path class="cross" d="M 640 261 L 663 261"/>
+<rect class="risk" x="670" y="211" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="239">max_files=400; uvx must be available</text>
+<text class="small" x="689" y="266">unavailable/too_large/partial</text>
+<text class="small" x="689" y="289">Dynamic dispatch and callbacks remain uncertain</text>
+<path class="line" d="M 330 309 L 330 329"/>
+<rect class="node" x="28" y="335" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="363">03  _run_frontend → dependency-cruiser</text>
+<text class="small" x="47" y="389">scripts/logic_atlas.py:136</text>
+<text class="small" x="47" y="412">frontend-dependencies.json</text>
+<path class="cross" d="M 640 385 L 663 385"/>
+<rect class="risk" x="670" y="335" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="363">--no-config; unresolved stays unknown</text>
+<text class="small" x="689" y="390">Partial for unresolved imports or Vue/Svelte</text>
+<text class="small" x="689" y="413">Event-to-HTTP/API edges are not linked</text>
+<path class="line" d="M 330 433 L 330 453"/>
+<rect class="node" x="28" y="459" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="487">04  syntax_map.extract → frontend functions</text>
+<text class="small" x="47" y="513">scripts/syntax_map.py:42</text>
+<text class="small" x="47" y="536">frontend-symbols.json and HTML/SVG</text>
+<path class="cross" d="M 640 509 L 663 509"/>
+<rect class="risk" x="670" y="459" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="487">Member/dynamic calls stay unknown; works without npx</text>
+<text class="small" x="689" y="514">Partial for syntax/unknown/Vue/Svelte</text>
+<text class="small" x="689" y="537">Event, HTTP and cross-file calls are not linked</text>
+<path class="line" d="M 330 557 L 330 577"/>
+<rect class="node" x="28" y="583" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="611">05  syntax_map.extract → native/backend</text>
+<text class="small" x="47" y="637">scripts/syntax_map.py:42</text>
+<text class="small" x="47" y="660">language-syntax.json</text>
+<path class="cross" d="M 640 633 L 663 633"/>
+<rect class="risk" x="670" y="583" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="611">Skip symlinks and files over 1 MB</text>
+<text class="small" x="689" y="638">Unknown calls remain explicit</text>
+<text class="small" x="689" y="661">Cross-file calls, cfg and reflection remain unresolved</text>
+<path class="line" d="M 330 681 L 330 701"/>
+<rect class="node" x="28" y="707" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="735">06  atlas_render.write_graph</text>
+<text class="small" x="47" y="761">scripts/atlas_render.py:121</text>
+<text class="small" x="47" y="784">*-map.{html,svg,pdf}</text>
+<path class="cross" d="M 640 757 L 663 757"/>
+<rect class="risk" x="670" y="707" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="735">SVG preview limited to 120 nodes</text>
+<text class="small" x="689" y="762">Truncated SVG marked partial</text>
+<text class="small" x="689" y="785">A static catalog does not explain end-to-end behavior</text>
+<path class="line" d="M 330 805 L 330 825"/>
+<rect class="node" x="28" y="831" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="859">07  repo_explorer.index → render</text>
+<text class="small" x="47" y="885">scripts/repo_explorer.py:38</text>
+<text class="small" x="47" y="908">repo-explorer.html and five SVGs</text>
+<path class="cross" d="M 640 881 L 663 881"/>
+<rect class="risk" x="670" y="831" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="859">Parse syntax; show unknown calls</text>
+<text class="small" x="689" y="886">Parse errors are listed</text>
+<text class="small" x="689" y="909">Static calls are not runtime traces</text>
+<path class="line" d="M 330 929 L 330 949"/>
+<rect class="node" x="28" y="955" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="983">08  model_rescue_eval.evaluate</text>
+<text class="small" x="47" y="1009">scripts/model_rescue_eval.py:148</text>
+<text class="small" x="47" y="1032">reports/model-eval/*.json</text>
+<path class="cross" d="M 640 1005 L 663 1005"/>
+<rect class="risk" x="670" y="955" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="983">Schema, plan_check and unsafe-verdict grader</text>
+<text class="small" x="689" y="1010">Contract failure returns 2</text>
+<text class="small" x="689" y="1033">Not an end-to-end executor/owner test</text>
+<path class="line" d="M 330 1053 L 330 1073"/>
+<rect class="node" x="28" y="1079" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="1107">09  public_snapshot.build</text>
+<text class="small" x="47" y="1133">scripts/public_snapshot.py:44</text>
+<text class="small" x="47" y="1156">tar.gz and SHA manifest</text>
+<path class="cross" d="M 640 1129 L 663 1129"/>
+<rect class="risk" x="670" y="1079" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="1107">Exclude reports/logs; reject symlinks</text>
+<text class="small" x="689" y="1134">Unsafe path aborts</text>
+<text class="small" x="689" y="1157">Still needs secret, license and manual content review</text>
+<path class="line" d="M 330 1177 L 330 1197"/>
+<rect class="node" x="28" y="1203" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="1231">10  Gitleaks allowlist → scan source snapshot</text>
+<text class="small" x="47" y="1257">.gitleaks.toml:6</text>
+<text class="small" x="47" y="1280">Gitleaks finding report</text>
+<path class="cross" d="M 640 1253 L 663 1253"/>
+<rect class="risk" x="670" y="1203" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="1231">Do not exclude the entire root/public snapshot</text>
+<text class="small" x="689" y="1258">Zero scanned bytes is a false green and blocks release</text>
+<text class="small" x="689" y="1281">Zero matched patterns does not prove absence of sensitive data</text>
+<path class="line" d="M 330 1301 L 330 1321"/>
+<rect class="node" x="28" y="1327" width="612" height="100" rx="11"/>
+<text class="title" x="47" y="1355">11  LICENSE + release gate</text>
+<text class="small" x="47" y="1381">LICENSE:1</text>
+<text class="small" x="47" y="1404">Candidate public source snapshot</text>
+<path class="cross" d="M 640 1377 L 663 1377"/>
+<rect class="risk" x="670" y="1327" width="480" height="100" rx="11"/>
+<text class="guard" x="689" y="1355">Do not push the old branch/history</text>
+<text class="small" x="689" y="1382">Missing review prevents publication</text>
+<text class="small" x="689" y="1405">External tool licenses and data need separate review</text>
+</svg>

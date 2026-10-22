@@ -1,0 +1,424 @@
+[
+  {
+    "id": "control",
+    "title": "01 · Orchestration, configuration and owner decisions",
+    "description": "The voyage command follows STAGES, loads role configuration and asks the owner at PLAN, REPAIR, merge and LOCK. Prompts in agents/ take effect only when a command actually loads them.",
+    "steps": [
+      {
+        "call": "main → parse_args",
+        "source": "scripts/rescue_voyage.py:448",
+        "why": "Identify the target, stages, probe and command overrides.",
+        "guard": "Target must contain .git; stage must be in STAGES",
+        "output": "Ctx and voyage.json with state=running",
+        "failure": "Return 2 for an invalid target or stage",
+        "risk": "Checks only for a .git path; repository trust is not verified"
+      },
+      {
+        "call": "load_registry → registry.toml",
+        "source": "scripts/rescue_voyage.py:52",
+        "why": "Get the target name, scanner set, probe and owner mode from the registry.",
+        "guard": "--path takes precedence over the named target",
+        "output": "reg, target, scan_tools",
+        "failure": "An unknown name does not create a target",
+        "risk": "Stale configuration can diverge from the target"
+      },
+      {
+        "call": "load_config → build_cmd",
+        "source": "scripts/llm_config.py:34",
+        "why": "Assign write, verify and audit from config.toml or VIBE_LLM_CONFIG.",
+        "guard": "Merge DEFAULTS; do not read an API key from the file",
+        "output": "CLI command strings by role",
+        "failure": "A missing CLI fails at its stage",
+        "risk": "Arbitrary CLIs have host privileges; small models have not been fully evaluated"
+      },
+      {
+        "call": "Dialogue.ask → owner",
+        "source": "scripts/dialogue.py:58",
+        "why": "Record or ask for a decision; never approve automatically.",
+        "guard": "Random ID, nonce/binding, timeout and one-time answer consumption",
+        "output": "choice, note; QUESTION/ANSWER in file mode",
+        "failure": "Invalid answer or timeout raises an exception and blocks voyage",
+        "risk": "Anyone who can write the answer directory may impersonate the owner"
+      },
+      {
+        "call": "STAGE_FUNCS: map→prove→review→plan→repair→lock",
+        "source": "scripts/rescue_voyage.py:444",
+        "why": "Run in fixed order even when --stages lists another order.",
+        "guard": "An rc or exception stops the loop",
+        "output": "voyage.json done/blocked/error",
+        "failure": "A failed stage returns 2 and records state",
+        "risk": "--stages permits stage omission; REPAIR checks only part of preflight itself"
+      },
+      {
+        "call": "_stage_plan → approval hash",
+        "source": "scripts/rescue_voyage.py:226",
+        "why": "An advisor or template creates the plan; plan_check runs before owner approval.",
+        "guard": "plan_check=0 plus accept required before saving hash/SHA",
+        "output": "approvals/PLAN-*.json",
+        "failure": "Rejection or three failed attempts stops",
+        "risk": "Approval file sits beside evidence and has no signature"
+      },
+      {
+        "call": "_stage_repair → second owner gate",
+        "source": "scripts/rescue_voyage.py:285",
+        "why": "Check plan hash and HEAD; ask before execution and again before merge.",
+        "guard": "Hash and target HEAD must match",
+        "output": "Candidate branch or merge commit",
+        "failure": "Rejection retains/discards candidate without merging",
+        "risk": "Subprocesses have host privileges; the worktree is not a sandbox"
+      },
+      {
+        "call": "_stage_lock → rulesync drift",
+        "source": "scripts/rescue_voyage.py:403",
+        "why": "The owner decides whether to run drift checks when a target has rulesync.",
+        "guard": "Explicit accept/reject",
+        "output": "Drift result",
+        "failure": "Nonzero exit blocks when checks run",
+        "risk": "Accepting with no configuration leads to a skip"
+      }
+    ]
+  },
+  {
+    "id": "evidence",
+    "title": "02 · MAP, PROVE and the evidence path",
+    "description": "This path separates repository mapping, scanners, parsers, baselines and reports. Each tool has an ok/skipped/failed status; scanner output alone does not establish complete coverage.",
+    "steps": [
+      {
+        "call": "_stage_map → context_pack.collect",
+        "source": "scripts/rescue_voyage.py:99",
+        "why": "Build a bounded context pack and target inventory.",
+        "guard": "Exit code must be 0",
+        "output": "session/map/",
+        "failure": "context_pack failure blocks MAP",
+        "risk": "The pack may contain private data; review before sending to an LLM"
+      },
+      {
+        "call": "_stage_map → recon.assets",
+        "source": "tools/meta/recon.py:117",
+        "why": "Count languages, large files, Git state and agent assets.",
+        "guard": "recon.json must exist",
+        "output": "session/map/recon.json",
+        "failure": "Missing artifact blocks MAP",
+        "risk": "Recon is inventory, not proof of runtime flow"
+      },
+      {
+        "call": "_stage_prove → fanout.main",
+        "source": "scripts/rescue_voyage.py:113",
+        "why": "Select scanners and run them concurrently.",
+        "guard": "Fanout must exit 0 before merge",
+        "output": "prove/raw/*.json, run.summary.json",
+        "failure": "A failed tool blocks PROVE",
+        "risk": "A skipped scanner may still be accepted"
+      },
+      {
+        "call": "fanout.one → scan.main",
+        "source": "scripts/fanout.py:63",
+        "why": "Launch one subprocess per tool in the manifest.",
+        "guard": "Thread pool; 1800 s per tool",
+        "output": "raw/<tool>.json",
+        "failure": "Missing output creates a failed record",
+        "risk": "Time and cost grow with tools; scanners may have side effects"
+      },
+      {
+        "call": "scan.precheck → cmd_for",
+        "source": "tools/meta/scan.py:273",
+        "why": "Classify unavailable/skipped tools and construct pinned commands.",
+        "guard": "Configuration, manifest and tool must exist",
+        "output": "Command or skipped reason",
+        "failure": "Unknown tool is skipped",
+        "risk": "An unknown listed tool does not fail fanout"
+      },
+      {
+        "call": "scan.collect_findings → parsers",
+        "source": "tools/meta/scan.py:357",
+        "why": "Normalize tool output into findings.",
+        "guard": "Parse failures or disallowed exits return an error",
+        "output": "Findings by tool and exit_code",
+        "failure": "Missing parser/report or fatal exit fails",
+        "risk": "Some parsers still need stricter schema and coverage-byte checks"
+      },
+      {
+        "call": "merge_findings.load_raw → merge",
+        "source": "scripts/merge_findings.py:37",
+        "why": "Redact text, normalize paths and deduplicate severity.",
+        "guard": "Drop records without a file",
+        "output": "findings.json/.md and SARIF",
+        "failure": "Malformed raw JSON is listed in errors",
+        "risk": "Pattern-based redaction cannot guarantee PII removal"
+      },
+      {
+        "call": "_coverage_problems → delta_gate",
+        "source": "scripts/rescue_loop.py:59",
+        "why": "Compare scanner lists/statuses and new findings.",
+        "guard": "Lost ok coverage blocks; delta key uses tool, file and rule",
+        "output": "Baseline or delta verdict",
+        "failure": "A new finding returns 2",
+        "risk": "An old finding on a different line is not new; skip-to-skip still passes"
+      },
+      {
+        "call": "run_target.main (alternate MAP+PROVE path)",
+        "source": "scripts/run_target.py:28",
+        "why": "An independent entry point scans a registry target.",
+        "guard": "MAP/recon/fanout/merge must exit 0, artifacts must be fresh, at least one scanner ok",
+        "output": "reports/targets/<name>/",
+        "failure": "A failed step blocks baseline save",
+        "risk": "Skipped scanners still need a required/optional policy"
+      }
+    ]
+  },
+  {
+    "id": "review",
+    "title": "03 · Prompts, audit and team handoff",
+    "description": "The audit role writes the review when its CLI runs. The fallback template contains real counts but is not a deep audit. Cross-check and number-check are currently advisory.",
+    "steps": [
+      {
+        "call": "_stage_review → auditor_architecture.md",
+        "source": "scripts/rescue_voyage.py:170",
+        "why": "Load the audit prompt through PROMPT_AGENT and invoke review_cmd.",
+        "guard": "Check README/REVIEW and PROPOSALS modification times",
+        "output": "review/{README,REVIEW,PROPOSALS}.md",
+        "failure": "CLI failure produces a template with a notice",
+        "risk": "mtime is weak evidence; the prompt may miss the domain"
+      },
+      {
+        "call": "_review_templates",
+        "source": "scripts/rescue_voyage.py:510",
+        "why": "Provide a fallback when the agent writes no fresh files.",
+        "guard": "Attach a no-LLM-audit notice",
+        "output": "Template plus scanner counts",
+        "failure": "Missing LLM output alone does not block REVIEW",
+        "risk": "A reader may mistake the template for a full audit"
+      },
+      {
+        "call": "check_review_numbers.check",
+        "source": "scripts/check_review_numbers.py:292",
+        "why": "Compare numerical claims with evidence and source.",
+        "guard": "Advisory result included in review",
+        "output": "Number-check table",
+        "failure": "Checker failure does not block REVIEW",
+        "risk": "Qualitative claims and external citations are not verified"
+      },
+      {
+        "call": "collect_evidence.main",
+        "source": "scripts/collect_evidence.py:53",
+        "why": "Collect masked JSON for handoff.",
+        "guard": "Nonzero exit blocks REVIEW",
+        "output": "review/EVIDENCE/",
+        "failure": "Packaging failure blocks the stage",
+        "risk": "Masking is heuristic; review manually before sharing"
+      },
+      {
+        "call": "_crosscheck → crosscheck.md",
+        "source": "scripts/rescue_voyage.py:148",
+        "why": "Have the verify role inspect wrong counts, contradictions and missing evidence.",
+        "guard": "Runs only without a custom review command",
+        "output": "cross-check.md if the CLI writes it",
+        "failure": "Missing/failing CLI fails open",
+        "risk": "Not a release gate or proof of independent audit"
+      },
+      {
+        "call": "agents/auditor_* & orchestrator",
+        "source": "agents/orchestrator.md:1",
+        "why": "Specialized prompts describe roles and expected output.",
+        "guard": "Only auditor_architecture loads directly in voyage",
+        "output": "Manual handoff if orchestrator invokes them",
+        "failure": "No automatic runtime fan-out across all auditors",
+        "risk": "Prompt assets may be mistaken for executed checks"
+      }
+    ]
+  },
+  {
+    "id": "repair",
+    "title": "04 · PLAN, candidate, reviewer and rollback",
+    "description": "A candidate runs in a worktree and passes scope, probe, scan and reviewer checks before the owner is asked to merge. A post-merge probe can trigger a conditional auto-revert. These are Git gates, not an operating-system sandbox.",
+    "steps": [
+      {
+        "call": "advisor.md → plan_check.check_plan",
+        "source": "scripts/plan_check.py:81",
+        "why": "Check sections, verification per step, Scope and SHA.",
+        "guard": "Return 2 if the plan is missing or mismatched",
+        "output": "Valid PLAN-*.md",
+        "failure": "An invalid plan cannot be accepted",
+        "risk": "The checker cannot prove that Verification steps are sufficient"
+      },
+      {
+        "call": "rescue_loop.main preflight",
+        "source": "scripts/rescue_loop.py:75",
+        "why": "Check baseline, probe, clean target, HEAD and coverage.",
+        "guard": "Baseline SHA must match HEAD",
+        "output": "loop.json round 0",
+        "failure": "Violation returns BLOCK",
+        "risk": "_tracked_clean does not detect untracked target files"
+      },
+      {
+        "call": "guards.run_probe before",
+        "source": "scripts/guards.py:42",
+        "why": "Capture probe rc and stdout/stderr hashes.",
+        "guard": "Every rc must be 0",
+        "output": "probe_before",
+        "failure": "A failing baseline probe returns BLOCK",
+        "risk": "Output hashes are sensitive to nondeterministic output"
+      },
+      {
+        "call": "git worktree add → executor.md",
+        "source": "scripts/rescue_loop.py:161",
+        "why": "Create a candidate branch and invoke the writer.",
+        "guard": "Target HEAD and clean state must remain unchanged",
+        "output": "rescue/<plan-id> worktree",
+        "failure": "Worktree error returns BLOCK",
+        "risk": "The executor has host filesystem and network privileges"
+      },
+      {
+        "call": "plan_check.check_worktree",
+        "source": "scripts/plan_check.py:129",
+        "why": "Require changed filenames to stay within Scope.",
+        "guard": "Check Scope before and after reviewer",
+        "output": "Allowed diff",
+        "failure": "Out-of-scope change returns REVISE",
+        "risk": "Malicious content in allowed files still needs reviewer scrutiny"
+      },
+      {
+        "call": "git add/commit → candidate probe",
+        "source": "scripts/rescue_loop.py:214",
+        "why": "Commit the candidate for a real merge and compare probes.",
+        "guard": "Probe rc and hash must match before",
+        "output": "candidate_sha",
+        "failure": "Commit failure or probe mismatch returns REVISE",
+        "risk": "A probe cannot cover every behavior"
+      },
+      {
+        "call": "fanout → merge → coverage → delta",
+        "source": "scripts/rescue_loop.py:243",
+        "why": "Scan candidate with the baseline scanner set.",
+        "guard": "No failures, lost coverage or new findings",
+        "output": "Round evidence",
+        "failure": "Violation returns REVISE",
+        "risk": "A scanner skipped in baseline can remain skipped"
+      },
+      {
+        "call": "reviewer.md → parse_verdict",
+        "source": "scripts/rescue_loop.py:38",
+        "why": "Have an independent verify role write a clear verdict.",
+        "guard": "Candidate must be clean; stale verdict removed",
+        "output": "APPROVE/REVISE/BLOCK",
+        "failure": "Unknown/REVISE repeats until max_rounds",
+        "risk": "A text verdict does not prove the reviewer ran tests"
+      },
+      {
+        "call": "owner merge → postmerge probe",
+        "source": "scripts/rescue_voyage.py:350",
+        "why": "Owner approves merge; compare SHA and run a post-merge probe.",
+        "guard": "Target HEAD and candidate SHA unchanged",
+        "output": "CHANGES.log and REVERT.md",
+        "failure": "Probe mismatch auto-reverts if HEAD is clean",
+        "risk": "Side effects outside Git are not rolled back"
+      }
+    ]
+  },
+  {
+    "id": "atlas",
+    "title": "05 · Multilanguage logic atlas and MIT release",
+    "description": "The target analyzer builds a static graph; this repository explorer indexes every Python function in the harness itself. A public release must use a clean source snapshot, not the old Git history.",
+    "steps": [
+      {
+        "call": "logic_atlas.resolve_scope → tracked_files",
+        "source": "scripts/logic_atlas.py:46",
+        "why": "Constrain scope to the target and read only Git-tracked regular files.",
+        "guard": "Reject path escape and symlinks",
+        "output": "Language-specific file inventory",
+        "failure": "Bad scope raises error",
+        "risk": "Untracked code does not enter the graph"
+      },
+      {
+        "call": "classify → Python Pyan",
+        "source": "scripts/logic_atlas.py:69",
+        "why": "Build a static Python call graph with pinned Pyan.",
+        "guard": "max_files=400; uvx must be available",
+        "output": "python-calls.dot and HTML/SVG",
+        "failure": "unavailable/too_large/partial",
+        "risk": "Dynamic dispatch and callbacks remain uncertain"
+      },
+      {
+        "call": "_run_frontend → dependency-cruiser",
+        "source": "scripts/logic_atlas.py:136",
+        "why": "Build JS/TS import graph without executing target configuration.",
+        "guard": "--no-config; unresolved stays unknown",
+        "output": "frontend-dependencies.json",
+        "failure": "Partial for unresolved imports or Vue/Svelte",
+        "risk": "Event-to-HTTP/API edges are not linked"
+      },
+      {
+        "call": "syntax_map.extract → frontend functions",
+        "source": "scripts/syntax_map.py:42",
+        "why": "Extract JS/TS/JSX/TSX functions, arrow variables and direct same-file calls.",
+        "guard": "Member/dynamic calls stay unknown; works without npx",
+        "output": "frontend-symbols.json and HTML/SVG",
+        "failure": "Partial for syntax/unknown/Vue/Svelte",
+        "risk": "Event, HTTP and cross-file calls are not linked"
+      },
+      {
+        "call": "syntax_map.extract → native/backend",
+        "source": "scripts/syntax_map.py:42",
+        "why": "Extract Rust/Go/Java/PHP/C# symbols and same-file calls.",
+        "guard": "Skip symlinks and files over 1 MB",
+        "output": "language-syntax.json",
+        "failure": "Unknown calls remain explicit",
+        "risk": "Cross-file calls, cfg and reflection remain unresolved"
+      },
+      {
+        "call": "atlas_render.write_graph",
+        "source": "scripts/atlas_render.py:121",
+        "why": "Export offline HTML/SVG/PDF with a full node/edge/unknown HTML catalog.",
+        "guard": "SVG preview limited to 120 nodes",
+        "output": "*-map.{html,svg,pdf}",
+        "failure": "Truncated SVG marked partial",
+        "risk": "A static catalog does not explain end-to-end behavior"
+      },
+      {
+        "call": "repo_explorer.index → render",
+        "source": "scripts/repo_explorer.py:38",
+        "why": "Index all functions, variables and calls in the harness without a 120-node cap.",
+        "guard": "Parse syntax; show unknown calls",
+        "output": "repo-explorer.html and five SVGs",
+        "failure": "Parse errors are listed",
+        "risk": "Static calls are not runtime traces"
+      },
+      {
+        "call": "model_rescue_eval.evaluate",
+        "source": "scripts/model_rescue_eval.py:148",
+        "why": "Smoke-test MAP/PLAN/REVIEW on synthetic fixtures through a budget model gateway.",
+        "guard": "Schema, plan_check and unsafe-verdict grader",
+        "output": "reports/model-eval/*.json",
+        "failure": "Contract failure returns 2",
+        "risk": "Not an end-to-end executor/owner test"
+      },
+      {
+        "call": "public_snapshot.build",
+        "source": "scripts/public_snapshot.py:44",
+        "why": "Package fresh source without old Git history or reports.",
+        "guard": "Exclude reports/logs; reject symlinks",
+        "output": "tar.gz and SHA manifest",
+        "failure": "Unsafe path aborts",
+        "risk": "Still needs secret, license and manual content review"
+      },
+      {
+        "call": "Gitleaks allowlist → scan source snapshot",
+        "source": ".gitleaks.toml:6",
+        "why": "Scan extracted source and verify scanned bytes are nonzero.",
+        "guard": "Do not exclude the entire root/public snapshot",
+        "output": "Gitleaks finding report",
+        "failure": "Zero scanned bytes is a false green and blocks release",
+        "risk": "Zero matched patterns does not prove absence of sensitive data"
+      },
+      {
+        "call": "LICENSE + release gate",
+        "source": "LICENSE:1",
+        "why": "Prepare source for MIT release.",
+        "guard": "Do not push the old branch/history",
+        "output": "Candidate public source snapshot",
+        "failure": "Missing review prevents publication",
+        "risk": "External tool licenses and data need separate review"
+      }
+    ]
+  }
+]

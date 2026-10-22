@@ -1,0 +1,11 @@
+rules:
+  - id: security-command-shell-true
+    languages: [python]
+    message: "subprocess.* với shell=True — nguy cơ command injection; dùng danh sách args, không shell"
+    severity: ERROR
+    patterns:
+      - pattern: subprocess.$FN(..., shell=True)
+      - pattern: subprocess.$FN(..., shell = True)
+    metadata:
+      category: security
+      confidence: HIGH

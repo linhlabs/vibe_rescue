@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+.ipynb_checkpoints/
+.venv/
+config.local.toml
+node_modules/
+tools/bin/
+tools/upstream/
+reports/
+.rescue/
+*.egg-info/
+logs_audit/*
+!logs_audit/README.md
