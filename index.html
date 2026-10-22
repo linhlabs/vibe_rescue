@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vibe Rescue · Map, audit and safely clean up messy or AI-generated code</title>
+<meta name="description" content="Vibe Rescue maps an unfamiliar Git repository, finds concrete problems with free static-analysis tools, and prepares small reversible fixes only with human approval. Bản đồ mã nguồn và dọn code an toàn, có người duyệt.">
+<link rel="canonical" href="https://thusinh1969.github.io/vibe_rescue/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Vibe Rescue: map, audit and safely clean up messy or AI-generated code">
+<meta property="og:description" content="Codebase maps, static-analysis evidence, and human-approved repair. MIT licensed.">
+<meta property="og:image" content="https://thusinh1969.github.io/vibe_rescue/docs/assets/source-atlas-preview.en.png">
+<meta property="og:url" content="https://thusinh1969.github.io/vibe_rescue/">
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;background:#0a1020;color:#dbe4f3}
+header{padding:64px 24px 40px;background:linear-gradient(135deg,#0f2a3d 0%,#0a1020 70%);border-bottom:1px solid #1b2a40}
+.wrap{max-width:980px;margin:0 auto}
+.eyebrow{letter-spacing:.14em;font-size:12px;font-weight:700;color:#5eead4;text-transform:uppercase}
+h1{margin:10px 0 12px;font-size:clamp(34px,6vw,56px);line-height:1.1;color:#f3f7ff}
+.lead{max-width:760px;font-size:18px;color:#b8c6dd;margin:0 0 6px}
+main{padding:36px 24px 56px}
+.grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.card{background:#0f172a;border:1px solid #22324a;border-radius:14px;padding:24px}
+.card h2{margin:0 0 6px;font-size:22px;color:#f3f7ff}
+.card p{margin:0 0 16px;color:#a9b8d0}
+.btn{display:inline-block;margin:0 10px 10px 0;padding:10px 16px;border-radius:10px;border:1px solid #2dd4bf;color:#5eead4;text-decoration:none;font-weight:600}
+.btn.primary{background:#2dd4bf;color:#06201c}
+.btn:hover{filter:brightness(1.12)}
+.points{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:34px 0 0}
+.points div{padding:14px 16px;border-left:3px solid #2dd4bf;background:#0c1426;border-radius:0 10px 10px 0}
+.points b{display:block;color:#f3f7ff}
+footer{padding:24px;border-top:1px solid #1b2a40;color:#8a9bb5;font-size:14px;text-align:center}
+a{color:#5eead4}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="eyebrow">Vibe Rescue · MIT</div>
+<h1>Understand a messy codebase,<br>then clean it up safely.</h1>
+<p class="lead">Maps an unfamiliar Git project, finds concrete problems with free tools, and prepares small reversible fixes, only with your approval.</p>
+<p class="lead">Lập bản đồ dự án khó hiểu, tìm vấn đề bằng công cụ miễn phí, và chuẩn bị bản sửa nhỏ hoàn tác được, chỉ khi bạn đồng ý.</p>
+</div></header>
+<main><div class="wrap">
+<div class="grid">
+<section class="card">
+<h2>English</h2>
+<p>Start with the readme, then open the Source Atlas: a searchable map of this project's own code.</p>
+<a class="btn primary" href="https://github.com/thusinh1969/vibe_rescue/blob/master/README.md">README</a>
+<a class="btn" href="docs/assets/repo-explorer.en.html">Source Atlas</a>
+</section>
+<section class="card">
+<h2>Tiếng Việt</h2>
+<p>Đọc README trước, rồi mở Source Atlas: bản đồ tìm kiếm được của chính mã nguồn dự án này.</p>
+<a class="btn primary" href="https://github.com/thusinh1969/vibe_rescue/blob/master/README.vi.md">README</a>
+<a class="btn" href="docs/assets/repo-explorer.html">Source Atlas</a>
+</section>
+</div>
+<div class="points">
+<div><b>Explore · Khám phá</b>Files, functions, calls, unknowns.</div>
+<div><b>Find · Tìm vấn đề</b>Dead code, copy-paste, tangled imports, leaked secrets.</div>
+<div><b>Fix · Sửa</b>Plan, branch, tests before and after, second check, undo file.</div>
+<div><b>Approve · Duyệt</b>Nothing changes without a human "yes".</div>
+</div>
+</div></main>
+<footer>© 2026 Nguyễn Anh Nguyên · <a href="https://github.com/thusinh1969/vibe_rescue">GitHub</a> · The map is static: it shows who can call whom, not run-time behavior.</footer>
+</body>
+</html>
