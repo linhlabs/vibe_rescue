@@ -98,8 +98,6 @@ Mục tiêu thiết kế là **bất kỳ server nào nói định dạng OpenAI
 
 Bạn cần **Git**, **Python 3.11 trở lên** (có `venv` và `pip`) và **Bash**. Các công cụ kiểm tra tải thêm (tùy chọn) hiện chỉ được khóa phiên bản cho Linux x86-64.
 
-> Repo GitHub hiện là **private**, nên bạn cần được cấp quyền mới clone được.
-
 ### Bước 1: bản đồ đầu tiên (5 phút, không cần AI, không cần tài khoản)
 
 Chép nguyên một dòng này vào terminal. Nó tải công cụ, cài trong một thư mục riêng và kiểm kê lần đầu chính Vibe Rescue:
@@ -331,7 +329,7 @@ Phần lớn tài liệu chi tiết được viết bằng tiếng Việt.
 
 ## Trạng thái và giấy phép
 
-Phiên bản `0.5.0rc1` (bản ứng viên phát hành). Khám phá và tìm vấn đề dùng được. Việc sửa cần một người và vẫn còn một số [điểm chặn phát hành](STATUS.md#public-release-blockers). Repo đang private và lịch sử cũ chưa sẵn sàng để công khai; xem [quy trình phát hành](docs/PUBLIC_RELEASE.md).
+Phiên bản `0.5.0rc1` (bản ứng viên phát hành). Khám phá và tìm vấn đề dùng được. Việc sửa cần một người và vẫn còn một số [điểm chặn phát hành](STATUS.md#public-release-blockers). Repo công khai này cố ý bắt đầu từ một lịch sử sạch (lịch sử cũ được giữ riêng tư); xem [quy trình phát hành](docs/PUBLIC_RELEASE.md).
 
 Giấy phép: [MIT](LICENSE).
 

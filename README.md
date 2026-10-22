@@ -98,8 +98,6 @@ The design goal is **any server that speaks the common OpenAI-style `/v1/chat/co
 
 You need **Git**, **Python 3.11 or newer** (with `venv` and `pip`) and **Bash**. The optional downloaded checking tools are pinned for Linux x86-64 only.
 
-> The GitHub repository is currently **private**, so you need access to clone it.
-
 ### Step 1: your first map (5 minutes, no AI, no account)
 
 Copy this single line into a terminal. It downloads the tool, sets it up in its own folder, and makes a first inventory of Vibe Rescue itself:
@@ -331,7 +329,7 @@ Most detailed documents are written in Vietnamese.
 
 ## Status and license
 
-Version `0.5.0rc1` (release candidate). Exploring and finding problems are ready to use. Repair needs a person and some [release blockers](STATUS.md#public-release-blockers) are still open. The repository is private and its older history is not ready to be made public; see the [release procedure](docs/PUBLIC_RELEASE.md).
+Version `0.5.0rc1` (release candidate). Exploring and finding problems are ready to use. Repair needs a person and some [release blockers](STATUS.md#public-release-blockers) are still open. This public repository starts from a clean history on purpose (the earlier history stays private); see the [release procedure](docs/PUBLIC_RELEASE.md).
 
 License: [MIT](LICENSE).
 
