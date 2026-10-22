@@ -327,6 +327,15 @@ Most detailed documents are written in Vietnamese.
 - [SECURITY.md](SECURITY.md): what is and is not protected.
 - [STATUS.md](STATUS.md): what is finished and what blocks a public release.
 
+## Contributors
+
+In this order:
+
+1. **Nguyễn Anh Nguyên**: author and maintainer.
+2. **DeepSeek**: AI collaborator; model evaluation runs and visual review of the documentation (see [STATUS.md](STATUS.md)).
+3. **Codex** (OpenAI): AI collaborator; earlier versions and independent review.
+4. **Claude** (Anthropic): AI collaborator; README rewrite, the OpenAI-style adapter and release preparation.
+
 ## Status and license
 
 Version `0.5.0rc1` (release candidate). Exploring and finding problems are ready to use. Repair needs a person and some [release blockers](STATUS.md#public-release-blockers) are still open. This public repository starts from a clean history on purpose (the earlier history stays private); see the [release procedure](docs/PUBLIC_RELEASE.md).

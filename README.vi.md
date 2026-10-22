@@ -327,6 +327,15 @@ Phần lớn tài liệu chi tiết được viết bằng tiếng Việt.
 - [SECURITY.md](SECURITY.md): cái gì được bảo vệ và cái gì không.
 - [STATUS.md](STATUS.md): cái gì đã xong và cái gì đang chặn việc công bố.
 
+## Người đóng góp
+
+Theo thứ tự:
+
+1. **Nguyễn Anh Nguyên**: tác giả và người duy trì.
+2. **DeepSeek**: cộng tác viên AI; chạy đánh giá model và rà soát hình ảnh của tài liệu (xem [STATUS.md](STATUS.md)).
+3. **Codex** (OpenAI): cộng tác viên AI; các phiên bản trước và việc kiểm tra độc lập.
+4. **Claude** (Anthropic): cộng tác viên AI; viết lại README, adapter kiểu OpenAI và chuẩn bị phát hành.
+
 ## Trạng thái và giấy phép
 
 Phiên bản `0.5.0rc1` (bản ứng viên phát hành). Khám phá và tìm vấn đề dùng được. Việc sửa cần một người và vẫn còn một số [điểm chặn phát hành](STATUS.md#public-release-blockers). Repo công khai này cố ý bắt đầu từ một lịch sử sạch (lịch sử cũ được giữ riêng tư); xem [quy trình phát hành](docs/PUBLIC_RELEASE.md).
