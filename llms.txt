@@ -3,6 +3,7 @@
 > Vibe Rescue is a MIT-licensed command-line toolkit that maps an unfamiliar Git repository (files, functions, imports, calls; Python, JavaScript/TypeScript, Rust, Go, Java, PHP, C#), finds concrete problems with free static-analysis tools (dead code, copy-paste, over-complex functions, import cycles, unused dependencies, security mistakes, leaked secrets), and prepares small reversible fixes only after a human approves. Version 0.5.0rc1 (release candidate). Mapping and problem-finding need no AI. The AI report/plan/repair steps run through the command-line agent programs Claude Code and Codex, or through a built-in adapter (scripts/openai_agent.py) for any OpenAI-style model server (open models you host or any hosted model); the adapter has been tested with a scripted fake server and one full run on a toy project with one hosted model, not yet with Gemma or Qwen on a real server. Unattended repair of production code is not approved. The map is static: it shows who can call whom, not run-time behavior.
 
 ## Start here
+- [Website](https://thusinh1969.github.io/vibe_rescue/): language chooser and the live Source Atlas of this project (English and Vietnamese)
 - [README (English)](https://github.com/thusinh1969/vibe_rescue/blob/master/README.md): what it does, quick start, limits
 - [README (Tiếng Việt)](https://github.com/thusinh1969/vibe_rescue/blob/master/README.vi.md): the same in Vietnamese
 - [STATUS](https://github.com/thusinh1969/vibe_rescue/blob/master/STATUS.md): what is finished, release blockers

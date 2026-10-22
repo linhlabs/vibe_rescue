@@ -41,7 +41,7 @@ Vibe Rescue turns that fog into **a list of concrete, checkable facts** and **a 
 
 ![English Source Atlas: how the work flows, what is checked, what can fail, and where the risks are.](docs/assets/source-atlas-preview.en.png)
 
-[Open this project's own Source Atlas](docs/assets/repo-explorer.en.html) to see what such a map looks like. The picture above is a screenshot of that page.
+[Open this project's own Source Atlas](https://thusinh1969.github.io/vibe_rescue/docs/assets/repo-explorer.en.html) to see what such a map looks like. The picture above is a screenshot of that page.
 
 ## Job 2: FIX (what it looks for)
 

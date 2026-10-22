@@ -41,7 +41,7 @@ Vibe Rescue biến đám sương mù đó thành **danh sách sự thật cụ t
 
 ![Source Atlas tiếng Việt: công việc chảy thế nào, kiểm tra gì, lỗi ở đâu và rủi ro nằm ở đâu.](docs/assets/source-atlas-preview.vi.png)
 
-[Mở Source Atlas của chính dự án này](docs/assets/repo-explorer.html) để xem một bản đồ như vậy trông thế nào. Ảnh trên là ảnh chụp trang đó.
+[Mở Source Atlas của chính dự án này](https://thusinh1969.github.io/vibe_rescue/docs/assets/repo-explorer.html) để xem một bản đồ như vậy trông thế nào. Ảnh trên là ảnh chụp trang đó.
 
 ## Việc 2: SỬA (nó tìm gì)
 
