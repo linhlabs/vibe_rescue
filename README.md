@@ -4,16 +4,16 @@ English · [Tiếng Việt](README.vi.md)
 
 <!-- markdownlint-disable MD013 -->
 
-**Vibe Rescue** is a MIT-licensed toolkit that turns a codebase nobody understands into a **searchable map** and a **list of concrete problems** (dead code, copy-paste, tangled dependencies, leaked secrets, outdated libraries), then prepares **small, reversible fixes, only with your approval**.
+**Vibe Rescue** is a MIT-licensed toolkit that turns a codebase nobody understands into a **searchable map** and **scanner findings to investigate** (dead code, copy-paste, tangled dependencies, leaked secrets, outdated libraries). It can then prepare **small, reversible fixes, only with your approval**.
 
 Good for: inheriting a legacy project, cleaning up "vibe-coded" or AI-generated code, auditing technical debt, and onboarding a new developer. It works on any Git project and maps Python, JavaScript/TypeScript, Rust, Go, Java, PHP and C#. Mapping and checking use free tools and need **no paid AI**.
 
 It does two jobs:
 
 1. **EXPLORE.** It reads the project and shows your team what is really in it: which parts exist, what starts the program, which files are huge, who depends on whom, and which parts nobody understands.
-2. **FIX.** It finds what is wrong (dead code, copy-paste, over-complicated files, tangled dependencies, leaked passwords, outdated libraries), explains each problem in plain words with the exact file and line, and, only if you approve, prepares small fixes that can be undone.
+2. **FIX.** It checks for potential problems (dead code, copy-paste, over-complicated files, tangled dependencies, leaked passwords, outdated libraries), explains findings with their file and line, and, only if you approve, prepares small fixes that can be undone.
 
-> **Your project is never changed without a human "yes".** Exploring and checking only read. Every fix needs your approval and can be reverted.
+> **Source fixes require your approval.** EXPLORE writes reports, and third-party checkers may create caches. Every repair needs your approval and can be reverted.
 
 ## The problem it solves
 
@@ -33,7 +33,7 @@ Vibe Rescue turns that fog into **a list of concrete, checkable facts** and **a 
 | Question your team asks | What Vibe Rescue gives you |
 | --- | --- |
 | "What is in this project?" | Languages used, what starts the program (entry points), how tests run, the 10 largest files, which files look generated or copied from elsewhere. |
-| "Who calls whom?" | Searchable web pages and pictures of every file, function, import and function call. Python, JavaScript/TypeScript, Rust, Go, Java, PHP and C# are supported, with [different levels of detail](docs/LOGIC_ATLAS.md). |
+| "Who calls whom?" | Searchable pages and diagrams of tracked source files and statically resolved symbols and calls. Large diagrams are truncated for display; unresolved calls are marked. Python, JavaScript/TypeScript, Rust, Go, Java, PHP and C# have [different levels of detail](docs/LOGIC_ATLAS.md). |
 | "Which parts are tangled?" | Files that import each other in circles, files everyone depends on, and the largest files. |
 | "What do we not understand?" | A list of **unknowns**. The tool writes "I don't know" instead of guessing. |
 | "Where was the code rushed?" | Which files were rewritten the most in the Git history. |
@@ -74,7 +74,7 @@ Tools that are not installed are reported as `skipped` or `failed`. That means *
 
 ## Which AI do I need? You choose, any budget
 
-**You do not need an expensive AI.** The AI's jobs here are small and clearly bounded: read the machine results, explain them, write one small plan, check a change. Two ordinary models are enough. A stronger one is optional.
+**EXPLORE needs no AI.** For FIX, the AI reads machine results, explains them, writes one small plan and checks a change. The harness supports separate writer and checker models; their reliability depends on the models and the project.
 
 | Your situation | Suggested models (maintainer's guidance, not measured by this repository) |
 | --- | --- |
@@ -90,7 +90,7 @@ The design goal is **any server that speaks the common OpenAI-style `/v1/chat/co
 - The AI steps (report, plan, repair, second check) can run through either:
   - **Claude Code and Codex**, command-line agent programs (paid; the default in `config.toml`), or
   - the built-in adapter `scripts/openai_agent.py` for **any OpenAI-style server**: set `cli = "openai"`, the model id and `--base-url` (see step 3, option B). The adapter gives the model read-only tools and lets it write only where each step allows. It cannot run commands; Vibe Rescue itself runs the tests, scanners and scope checks.
-- **Tested so far:** automatic tests with a scripted fake server (what may be read and written, secrets hidden, failures), and **one full run on a tiny made-up project with one hosted model** (`deepseek-flash`): report, plan, your approvals, a one-line fix, the second check, merge and the undo file all worked. **Not tested yet:** Gemma or Qwen on a real server, and any real project. One run is an observation, not a statistic.
+- **Tested so far:** automatic tests with a scripted fake server (what may be read and written, secrets hidden, failures), and **one full FIX run on a tiny made-up project with one hosted model** (`deepseek-flash`): report, plan, your approvals, a one-line fix, the second check, merge and the undo file all worked. **Not tested yet:** Gemma or Qwen on a real server, or the full FIX workflow on a real project. One run is an observation, not a statistic.
 - Weaker models can write a plan that fails the plan check or a fix that the second check rejects. Then the tool **stops and changes nothing**; that is the safety net working, not a crash.
 - A separate sample-task test (`scripts/model_rescue_eval.py`, last section) grades a model on made-up tasks. Only `deepseek-flash` has recorded results (map 4 of 4, plan 4 of 4, review 3 of 4, or 4 of 4 after fixing a slip in the grader); for Gemma and Qwen the test exists but no results are recorded.
 
@@ -136,9 +136,11 @@ python scripts/rescue_voyage.py --path /path/to/your/project --stages map,prove 
 Read:
 
 - `<your project>/.rescue/voyage/prove/findings.md`: the problem list.
-- `<your project>/.rescue/voyage/run.summary.json`: what ran and what did not.
+- `<your project>/.rescue/voyage/prove/run.summary.json`: what ran and what did not.
 
 Everything is written into the hidden folder `.rescue/` of your project. Add `.rescue/` to that project's `.gitignore` so it is not committed by accident. For code you do not trust, work inside a throwaway virtual machine or container, because checking tools may run the project's own settings (see [SECURITY.md](SECURITY.md)).
+
+If your project contains private data or directories that must not be read, do not run `rescue_voyage.py` on its root: its MAP stage inspects the whole target. Use `logic_atlas.py --scope path/to/approved/code` and `fanout.py --target /path/to/approved/subdirectory --tools ruff --outdir reports/scan` instead; review those outputs before sharing them.
 
 ### Step 3: get the report in plain words (needs an AI)
 
@@ -250,10 +252,10 @@ If you stop here, nothing in your project has changed. Adding the stage `repair`
 ## Questions and fixes
 
 **What is the difference between EXPLORE and FIX?**
-EXPLORE (steps 1 and 2) only reads and draws; run it first on any project. FIX (steps 3 and 4) adds an AI that explains, plans and repairs, always with your approval.
+EXPLORE (steps 1 and 2) maps and checks code without intentionally changing source; it writes evidence and third-party checkers may create caches. FIX (steps 3 and 4) adds an AI that explains, plans and repairs, always with your approval.
 
 **Do I need an expensive AI?**
-No. The checking tools find the problems; the AI only explains, plans and checks. Two ordinary models are meant to be enough, though only one hosted model has been tried so far. See [Which AI do I need?](#which-ai-do-i-need-you-choose-any-budget). Without any AI you still get steps 1 and 2.
+No. The checking tools produce findings; the AI explains, plans and checks. There is not yet evidence that two small models are reliable for every project. See [Which AI do I need?](#which-ai-do-i-need-you-choose-any-budget). Without any AI you still get steps 1 and 2.
 
 **Can I use Gemma or Qwen on my real project?**
 The connection exists (option B in step 3), but it has only been tried with a hosted model on a toy project, not yet with Gemma or Qwen. Try it first on a small project or a copy, and run the sample-task test (last section) to see how your model does.

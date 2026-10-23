@@ -1,19 +1,19 @@
-# Vibe Rescue: lập bản đồ, kiểm toán và dọn sạch an toàn code lộn xộn hoặc do AI viết
+# Vibe Rescue: lập bản đồ và sửa an toàn code lộn xộn hoặc do AI viết
 
 [English](README.md) · Tiếng Việt
 
 <!-- markdownlint-disable MD013 -->
 
-**Vibe Rescue** là bộ công cụ giấy phép MIT biến một dự án không ai hiểu thành **bản đồ tìm kiếm được** và **danh sách vấn đề cụ thể** (code chết, code chép lặp, phụ thuộc rối, bí mật bị lộ, thư viện cũ), rồi chuẩn bị **các bản sửa nhỏ, hoàn tác được, chỉ khi bạn đồng ý**.
+**Vibe Rescue** là bộ công cụ giấy phép MIT biến một dự án không ai hiểu thành **bản đồ tìm kiếm được** và **các phát hiện từ scanner cần kiểm tra** (code chết, code chép lặp, phụ thuộc rối, bí mật bị lộ, thư viện cũ). Sau đó, công cụ có thể chuẩn bị **các bản sửa nhỏ, hoàn tác được, chỉ khi bạn đồng ý**.
 
 Dùng khi: tiếp quản dự án legacy, dọn code "vibe coding" hoặc do AI sinh ra, kiểm toán nợ kỹ thuật (technical debt), và đào tạo thành viên mới. Chạy trên mọi dự án Git và lập bản đồ Python, JavaScript/TypeScript, Rust, Go, Java, PHP và C#. Lập bản đồ và kiểm tra dùng công cụ miễn phí, **không cần AI trả phí**.
 
 Nó làm hai việc:
 
 1. **KHÁM PHÁ (EXPLORE).** Đọc dự án và cho cả team thấy bên trong thật sự có gì: có những phần nào, cái gì khởi động chương trình, file nào quá lớn, ai phụ thuộc vào ai, và phần nào chưa ai hiểu.
-2. **SỬA (FIX).** Tìm cái gì đang sai (code chết, code chép đi chép lại, file quá phức tạp, phụ thuộc rối, mật khẩu bị lộ, thư viện cũ có lỗ hổng), giải thích từng vấn đề bằng lời thường kèm đúng file và dòng, và chỉ khi bạn đồng ý mới chuẩn bị các bản sửa nhỏ, hoàn tác được.
+2. **SỬA (FIX).** Kiểm tra dấu hiệu vấn đề (code chết, code chép đi chép lại, file quá phức tạp, phụ thuộc rối, mật khẩu bị lộ, thư viện cũ có lỗ hổng), giải thích từng phát hiện kèm file và dòng, và chỉ khi bạn đồng ý mới chuẩn bị các bản sửa nhỏ, hoàn tác được.
 
-> **Dự án của bạn không bao giờ bị thay đổi nếu chưa có một người nói "đồng ý".** Khám phá và kiểm tra chỉ đọc. Mọi bản sửa đều cần bạn duyệt và hoàn tác được.
+> **Sửa source cần bạn duyệt.** KHÁM PHÁ ghi báo cáo và công cụ kiểm tra bên thứ ba có thể tạo cache. Mọi bản sửa đều cần bạn duyệt và hoàn tác được.
 
 ## Vấn đề nó giải quyết
 
@@ -33,7 +33,7 @@ Vibe Rescue biến đám sương mù đó thành **danh sách sự thật cụ t
 | Câu team hay hỏi | Vibe Rescue đưa cho bạn |
 | --- | --- |
 | "Dự án này có gì?" | Ngôn ngữ đang dùng, cái gì khởi động chương trình (điểm vào), test chạy thế nào, 10 file lớn nhất, file nào trông như được sinh tự động hoặc chép từ nơi khác. |
-| "Ai gọi ai?" | Trang web và hình ảnh tìm kiếm được về mọi file, hàm, import và lời gọi hàm. Hỗ trợ Python, JavaScript/TypeScript, Rust, Go, Java, PHP và C#, với [mức chi tiết khác nhau](docs/LOGIC_ATLAS.md). |
+| "Ai gọi ai?" | Trang và sơ đồ tìm kiếm được cho source file đã được Git theo dõi cùng các symbol/lời gọi phân giải được bằng phân tích tĩnh. Sơ đồ lớn bị rút gọn khi hiển thị; lời gọi chưa phân giải được đánh dấu rõ. Python, JavaScript/TypeScript, Rust, Go, Java, PHP và C# có [mức chi tiết khác nhau](docs/LOGIC_ATLAS.md). |
 | "Phần nào đang rối?" | File import lẫn nhau theo vòng tròn, file mà ai cũng phụ thuộc, và các file lớn nhất. |
 | "Ta chưa hiểu gì?" | Danh sách **điều chưa biết** (unknown). Công cụ ghi "không biết" thay vì đoán. |
 | "Chỗ nào bị viết vội?" | File nào bị viết lại nhiều nhất trong lịch sử Git. |
@@ -74,7 +74,7 @@ Công cụ chưa cài sẽ được báo `skipped` hoặc `failed`. Điều đó
 
 ## Cần AI nào? Bạn chọn, mọi ngân sách
 
-**Bạn không cần AI đắt tiền.** Việc của AI ở đây nhỏ và có giới hạn rõ: đọc kết quả của máy, giải thích, viết một kế hoạch nhỏ, kiểm một thay đổi. Hai model bình thường là đủ. Model mạnh hơn chỉ là tùy chọn.
+**KHÁM PHÁ không cần AI.** Với SỬA, AI đọc kết quả máy, giải thích, viết một kế hoạch nhỏ và kiểm thay đổi. Harness hỗ trợ model viết và model kiểm riêng; độ tin cậy phụ thuộc vào model và dự án.
 
 | Hoàn cảnh của bạn | Model gợi ý (hướng dẫn của người duy trì, repo này chưa đo) |
 | --- | --- |
@@ -90,7 +90,7 @@ Mục tiêu thiết kế là **bất kỳ server nào nói định dạng OpenAI
 - Các bước có AI (báo cáo, kế hoạch, sửa, kiểm lần hai) chạy được qua một trong hai đường:
   - **Claude Code và Codex**, các chương trình agent dòng lệnh (trả phí; là mặc định trong `config.toml`), hoặc
   - adapter có sẵn `scripts/openai_agent.py` cho **bất kỳ server kiểu OpenAI nào**: đặt `cli = "openai"`, tên model và `--base-url` (xem bước 3, lựa chọn B). Adapter cho model các công cụ chỉ đọc và chỉ cho ghi đúng chỗ mà từng bước cho phép. Nó không chạy được lệnh; chính Vibe Rescue tự chạy test, scanner và kiểm tra phạm vi.
-- **Đã thử đến nay:** test tự động với một server giả theo kịch bản (cái gì được đọc và ghi, bí mật được che, các lỗi), và **một lượt chạy trọn vẹn trên một dự án mẫu rất nhỏ tự dựng với một model được host sẵn** (`deepseek-flash`): báo cáo, kế hoạch, bạn duyệt, sửa một dòng, kiểm lần hai, gộp và file hoàn tác đều chạy. **Chưa thử:** Gemma hay Qwen trên server thật, và bất kỳ dự án thật nào. Một lượt là quan sát, không phải thống kê.
+- **Đã thử đến nay:** test tự động với một server giả theo kịch bản (cái gì được đọc và ghi, bí mật được che, các lỗi), và **một lượt SỬA trọn vẹn trên một dự án mẫu rất nhỏ tự dựng với một model được host sẵn** (`deepseek-flash`): báo cáo, kế hoạch, bạn duyệt, sửa một dòng, kiểm lần hai, gộp và file hoàn tác đều chạy. **Chưa thử:** Gemma hay Qwen trên server thật, hoặc toàn bộ quy trình SỬA trên dự án thật. Một lượt là quan sát, không phải thống kê.
 - Model yếu hơn có thể viết kế hoạch không qua kiểm tra, hoặc bản sửa bị lần kiểm thứ hai từ chối. Khi đó công cụ **dừng và không đổi gì**; đó là lưới an toàn đang làm việc, không phải sự cố.
 - Một bài thử riêng trên bài mẫu (`scripts/model_rescue_eval.py`, mục cuối) chấm model trên các tác vụ tự dựng. Chỉ `deepseek-flash` có kết quả được ghi (map 4/4, plan 4/4, review 3/4, hoặc 4/4 sau khi sửa một lỗi chấm điểm); với Gemma và Qwen thì bài thử có sẵn nhưng chưa ghi kết quả.
 
@@ -136,9 +136,11 @@ python scripts/rescue_voyage.py --path /path/to/your/project --stages map,prove 
 Đọc:
 
 - `<dự án của bạn>/.rescue/voyage/prove/findings.md`: danh sách vấn đề.
-- `<dự án của bạn>/.rescue/voyage/run.summary.json`: cái gì đã chạy và cái gì không.
+- `<dự án của bạn>/.rescue/voyage/prove/run.summary.json`: cái gì đã chạy và cái gì không.
 
 Mọi thứ được ghi vào thư mục ẩn `.rescue/` trong dự án của bạn. Hãy thêm `.rescue/` vào `.gitignore` của dự án đó để không commit nhầm. Với code bạn không tin, hãy làm trong máy ảo hoặc container dùng một lần, vì công cụ kiểm tra có thể chạy cấu hình của chính dự án (xem [SECURITY.md](SECURITY.md)).
+
+Nếu dự án có dữ liệu riêng tư hoặc thư mục không được phép đọc, đừng chạy `rescue_voyage.py` trên toàn repo: bước MAP của nó duyệt cả target. Hãy dùng `logic_atlas.py --scope path/to/approved/code` và `fanout.py --target /path/to/approved/subdirectory --tools ruff --outdir reports/scan`; kiểm tra output trước khi chia sẻ.
 
 ### Bước 3: lấy báo cáo bằng lời thường (cần một AI)
 
@@ -250,10 +252,10 @@ Nếu dừng ở đây, dự án của bạn chưa bị thay đổi gì. Thêm b
 ## Hỏi đáp và cách xử lý
 
 **KHÁM PHÁ khác SỬA thế nào?**
-KHÁM PHÁ (bước 1 và 2) chỉ đọc và vẽ; hãy chạy nó trước trên mọi dự án. SỬA (bước 3 và 4) thêm AI để giải thích, lập kế hoạch và sửa, luôn có sự đồng ý của bạn.
+KHÁM PHÁ (bước 1 và 2) lập bản đồ và kiểm tra mà không chủ ý sửa source; nó ghi evidence và công cụ bên thứ ba có thể tạo cache. SỬA (bước 3 và 4) thêm AI để giải thích, lập kế hoạch và sửa, luôn có sự đồng ý của bạn.
 
 **Tôi có cần AI đắt tiền không?**
-Không. Công cụ kiểm tra tìm ra vấn đề; AI chỉ giải thích, lập kế hoạch và kiểm. Hai model bình thường được kỳ vọng là đủ, dù hiện mới chỉ thử một model được host sẵn. Xem [Cần AI nào?](#cần-ai-nào-bạn-chọn-mọi-ngân-sách). Không dùng AI nào bạn vẫn có bước 1 và 2.
+Không. Công cụ kiểm tra đưa ra phát hiện; AI giải thích, lập kế hoạch và kiểm. Chưa có bằng chứng rằng hai model nhỏ đủ tin cậy cho mọi dự án. Xem [Cần AI nào?](#cần-ai-nào-bạn-chọn-mọi-ngân-sách). Không dùng AI nào bạn vẫn có bước 1 và 2.
 
 **Dùng Gemma hay Qwen cho dự án thật được không?**
 Kết nối đã có (lựa chọn B ở bước 3), nhưng mới chỉ thử với một model được host sẵn trên dự án mẫu nhỏ, chưa thử với Gemma hay Qwen. Hãy thử trước trên dự án nhỏ hoặc một bản sao, và chạy bài thử trên bài mẫu (mục cuối) để xem model của bạn làm được đến đâu.

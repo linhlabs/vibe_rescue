@@ -4,6 +4,13 @@
 > sinh tự động và không thuộc gói public. Các số test bên dưới chỉ đúng tại lần
 > chạy được ghi rõ; không dùng chúng để suy ra trạng thái của commit mới.
 
+## 2026-10-23 — README: phạm vi EXPLORE
+
+- README EN/VI được sửa cùng nội dung: phân biệt scanner finding với defect, nêu
+  giới hạn hiển thị graph tĩnh, sửa đường dẫn `prove/run.summary.json`, và hướng
+  dẫn giới hạn scope khi repo có dữ liệu riêng tư. Hai README có local link hợp
+  lệ; `git diff --check` pass. Chưa chạy full pytest vì chỉ sửa tài liệu.
+
 ## 2026-10-22 — public-readiness đang thực hiện
 
 - **Đã công khai** repo `thusinh1969/vibe_rescue` với lịch sử sạch (1 commit, quét gitleaks thư mục và lịch sử: 0 finding). Lịch sử cũ được giữ riêng tư ở repo `vibe_rescue_private_old`. Các ghi chú "private" bên dưới là lịch sử làm việc trước khi công khai. Điểm chặn R1–R4 và phần xác thực owner ở chế độ file vẫn mở: vẫn KHÔNG quảng bá tự sửa không giám sát.
