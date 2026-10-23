@@ -1,5 +1,36 @@
 # STATUS — vibe_rescue
 
+<a id="current-preview-gaps"></a>
+
+## 2026-10-23 — v0.8-preview capability boundary
+
+- Package label is `0.8.0-preview` (PEP 440 tools may normalize this to
+  `0.8.0rc0`). The portable offline `--generic` Atlas was smoke-tested from a
+  different working directory against a separate synthetic Python/TypeScript/
+  config repo: 3 code files, 3 blocks, 2 source-level relations, and 2/2
+  explicitly named journey functions bound. Full function IDs in backticks now
+  bind by exact match; an unknown ID remains unknown. This is an EXPLORE
+  compatibility receipt, not a cross-language call graph or live request trace.
+- Focused Architecture Atlas tests: 9 passed. Full Vibe Rescue pytest reached
+  100% with exit 0 after the exact-ID binding fix (runner omitted a totals line).
+- A generated handoff is not an independent human audit. The generic
+  generator emits candidates, provenance and missing-proof prompts; it does
+  **not** automatically reproduce that judgment for every team or certify
+  agent harness, swarm, medical, PII/PHI or billing safety. Owner-gated repair,
+  external provider policy, isolation and target-specific test/trace receipts
+  remain deployment responsibilities. See `docs/V0.8_PREVIEW.md`.
+- Current preview gaps: UI-to-API and other cross-language edges; stale-doc
+  detection beyond exact anchors; runtime/fault proof for sensitive controls;
+  independent reviewer evidence as a hard release gate; sandboxing of
+  untrusted executor/scanner commands; and target-specific owner authorization.
+  Do not advertise unattended auto-repair or universal production readiness.
+- Distribution is source-checkout only. `python -m build --wheel --no-isolation`
+  fails because setuptools finds ambiguous top-level packages in the flat
+  layout; no wheel or `pip install` claim is made for this preview.
+- Source-only preview snapshot contains 141 files; pinned Gitleaks 8.30.1
+  scanned the extracted tree with 0 findings (exit 0). This is a pattern scan,
+  not a manual publication or privacy review.
+
 ## 2026-10-23 — V1.0 architecture-first objective in progress
 
 - Owner requested a persistent product objective and plan. Added
@@ -182,7 +213,12 @@
 
 <a id="public-release-blockers"></a>
 
-### Chặn public release còn mở
+### Lịch sử blocker trước lần công khai đầu
+
+Danh sách bên dưới là trạng thái tại lần chuẩn bị public ban đầu. Lịch sử
+public sạch đã thay thế nhánh cũ; xem `current-preview-gaps` ở đầu file để biết
+những giới hạn **đang mở** của `v0.8-preview`. Không dùng mục lịch sử này làm
+quyết định phát hành hiện tại.
 
 0. **Owner authentication và false-green evidence**: đóng phần còn lại R1–R4 trong
    `docs/REPO_RUNTIME_ATLAS.md`, thêm test phản chứng, rồi chạy lại suite trên
@@ -209,6 +245,7 @@
 | v0.4.1 | Sửa lỗi import khi chạy từ cwd ngoài repo và đường dẫn evidence |
 | v0.4.2 | Sửa parser/severity/scope; 74 test pass lúc phát hành |
 | v0.5.0rc1 | Ứng viên public: repair fail-closed, atlas đa ngôn ngữ, snapshot source sạch |
+| v0.8-preview | Atlas generic; control candidate, FIX cần owner |
 
 Mọi gate là bằng chứng cho phạm vi probe và scanner đã chọn. Verdict reviewer và
 owner merge vẫn cần xem diff, unknown, và side effect ngoài Git.

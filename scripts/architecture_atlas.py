@@ -257,6 +257,7 @@ def _imports(root, index_data, file_to_block):
 def _journeys(docs, index_data, file_to_block):
     by_name = defaultdict(list)
     by_file = defaultdict(list)
+    by_id = index_data["functions_by_id"]
     for fn in index_data["functions"]:
         by_name[fn["name"].split(".")[-1]].append(fn["id"])
         by_file[fn["file"]].append(fn["id"])
@@ -283,6 +284,9 @@ def _journeys(docs, index_data, file_to_block):
             refs, blocks = [], set()
             for token in re.findall(r"`([^`]+)`", match.group(2)):
                 token = token.strip()
+                if token in by_id:
+                    refs.append(token)
+                    blocks.add(file_to_block[by_id[token]["file"]])
                 for file in by_file:
                     if file == token or file.endswith("/" + token):
                         blocks.add(file_to_block[file])

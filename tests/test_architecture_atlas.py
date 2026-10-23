@@ -121,6 +121,24 @@ def test_root_source_keeps_root_files_and_nested_blocks(tmp_path):
     assert any(edge["from"] == "." and edge["to"] == "src" for edge in model["edges"])
 
 
+def test_documented_full_function_ids_bind_without_guessing(tmp_path):
+    (tmp_path / "src").mkdir()
+    (tmp_path / "README.md").write_text(
+        "# Small app\n\n## Request journey\n"
+        "1. `main.handle` starts the request.\n"
+        "2. `src.service.run` finishes it.\n"
+        "3. `unknown.module.call` may run later.\n")
+    (tmp_path / "main.py").write_text(
+        "from src.service import run\ndef handle():\n    return run()\n")
+    (tmp_path / "src" / "service.py").write_text("def run():\n    return 1\n")
+    data = index(tmp_path, sources=(".",), asset_dirs=())
+    model = build(tmp_path, (".",), data)
+    steps = model["journeys"][0]["steps"]
+    assert steps[0]["functions"] == ["main.handle"]
+    assert steps[1]["functions"] == ["src.service.run"]
+    assert steps[2]["binding"] == "unknown"
+
+
 def test_unique_short_import_connects_blocks_but_ambiguous_name_does_not(tmp_path):
     for directory in ("src/api", "src/core", "src/other"):
         (tmp_path / directory).mkdir(parents=True)

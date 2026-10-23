@@ -351,7 +351,7 @@ Theo thứ tự:
 
 ## Trạng thái và giấy phép
 
-Phiên bản `0.5.0rc1` (bản ứng viên phát hành). Khám phá và tìm vấn đề dùng được. Việc sửa cần một người và vẫn còn một số [điểm chặn phát hành](STATUS.md#public-release-blockers). Repo công khai này cố ý bắt đầu từ một lịch sử sạch (lịch sử cũ được giữ riêng tư); xem [quy trình phát hành](docs/PUBLIC_RELEASE.md).
+**v0.8-preview** dùng được để khảo sát kiến trúc offline theo scope trên repo khác. [Hợp đồng bản preview](docs/V0.8_PREVIEW.vi.md) ghi rõ Atlas generic chứng minh được gì và phần nào vẫn cần reviewer. Bản control review sâu do người review viết; tool chưa tự tạo phán quyết an toàn tương đương cho mọi team. Sửa code vẫn cần owner duyệt và còn [khoảng trống an toàn](STATUS.md#current-preview-gaps). Công cụ đóng gói có thể chuẩn hóa `0.8.0-preview` thành `0.8.0rc0`.
 
 Giấy phép: [MIT](LICENSE).
 

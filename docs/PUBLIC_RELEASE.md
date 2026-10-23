@@ -1,7 +1,10 @@
-# PUBLIC RELEASE — phát hành source sạch
+# PUBLIC RELEASE — quy trình snapshot source sạch
 
-Lịch sử Git hiện tại từng chứa report nội bộ. Xóa report ở HEAD **không xóa chúng
-khỏi Git objects**. Không push nhánh/lịch sử hiện tại lên remote public.
+Tài liệu này ghi quy trình **lần công khai đầu** từ lịch sử cũ từng chứa report
+nội bộ. Repo public hiện tại đã được tạo từ lịch sử sạch; hướng dẫn "tạo remote
+mới" bên dưới là lịch sử thủ tục, không là trạng thái của `master` hiện nay.
+Với mỗi bản preview/release mới, vẫn phải rà snapshot và Git diff/tag trước
+khi công bố; xóa report ở HEAD không xóa chúng khỏi Git objects cũ.
 
 ## Tạo bản ứng viên không mang lịch sử
 

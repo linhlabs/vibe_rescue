@@ -66,5 +66,6 @@ artifact chứa source target vào repo public.
   chưa bound; báo cáo riêng ghi rõ khoảng trống. Chưa chứng minh một request
   path end-to-end.
 - F: README EN/VI và design doc đã cập nhật; full pytest/Ruff/Markdownlint/
-  link/browser QA pass. Commit và review release còn mở. Không gắn nhãn V1.0
-  hoàn tất khi D/E còn mở.
+  link/browser QA của lần Atlas trước pass. Bản `v0.8-preview` ghi rõ hợp đồng
+  portability và phần reviewer phải làm; review release V1.0 còn mở. Không gắn
+  nhãn V1.0 hoàn tất khi D/E còn mở.

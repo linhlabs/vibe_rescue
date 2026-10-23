@@ -1,6 +1,6 @@
 [project]
 name = "vibe-rescue"
-version = "0.5.0rc1"
+version = "0.8.0-preview"
 description = "Codebase maps, static-analysis evidence, and human-gated repository repair"
 keywords = ["codebase visualization", "static analysis", "call graph", "repository audit", "agent harness"]
 requires-python = ">=3.11"  # tomllib (manifest.toml single source of truth)

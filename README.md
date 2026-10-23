@@ -351,7 +351,7 @@ In this order:
 
 ## Status and license
 
-Version `0.5.0rc1` (release candidate). Exploring and finding problems are ready to use. Repair needs a person and some [release blockers](STATUS.md#public-release-blockers) are still open. This public repository starts from a clean history on purpose (the earlier history stays private); see the [release procedure](docs/PUBLIC_RELEASE.md).
+**v0.8-preview** is available for scoped, offline architecture exploration on other repositories. The [preview contract](docs/V0.8_PREVIEW.md) explains what the generic Atlas proves and what remains a reviewer task. A detailed control review is written by a human reviewer; the tool does not generate an equivalent safety verdict for every team. Repair still requires owner approval and has [open safety gaps](STATUS.md#current-preview-gaps). Package tooling may normalize `0.8.0-preview` to `0.8.0rc0`.
 
 License: [MIT](LICENSE).
 
