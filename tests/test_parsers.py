@@ -41,6 +41,13 @@ def test_parse_radon_new_format():
     assert out[1]["line"] == 65 and out[1]["severity"] == "medium"
 
 
+def test_parse_radon_normalizes_absolute_and_relative_target_paths():
+    text = ("/repo/src/a.py\n    F 12:0 a - C (12)\n"
+            "src/b.py\n    F 25:0 b - D (25)\n")
+    out = scan.parse_radon(text, ROOT)
+    assert [item["file"] for item in out] == ["src/a.py", "src/b.py"]
+
+
 def test_parse_bandit():
     data = {"results": [{"test_id": "B301", "filename": "/repo/src/a.py", "line_number": 7,
                          "issue_text": "pickle", "issue_severity": "HIGH", "issue_confidence": "MEDIUM"}]}

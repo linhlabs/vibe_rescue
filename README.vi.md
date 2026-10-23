@@ -33,7 +33,7 @@ Vibe Rescue biến đám sương mù đó thành **danh sách sự thật cụ t
 | Câu team hay hỏi | Vibe Rescue đưa cho bạn |
 | --- | --- |
 | "Dự án này có gì?" | Ngôn ngữ đang dùng, cái gì khởi động chương trình (điểm vào), test chạy thế nào, 10 file lớn nhất, file nào trông như được sinh tự động hoặc chép từ nơi khác. |
-| "Ai gọi ai?" | Trang và sơ đồ tìm kiếm được cho source file đã được Git theo dõi cùng các symbol/lời gọi phân giải được bằng phân tích tĩnh. Sơ đồ lớn bị rút gọn khi hiển thị; lời gọi chưa phân giải được đánh dấu rõ. Python, JavaScript/TypeScript, Rust, Go, Java, PHP và C# có [mức chi tiết khác nhau](docs/LOGIC_ATLAS.md). |
+| "Ai gọi ai?" | HTML và SVG tìm kiếm được cho source file đã được Git theo dõi cùng các symbol/lời gọi phân giải được bằng phân tích tĩnh. Sơ đồ Python lớn được chia thành các trang SVG có liên kết; lời gọi qua trang vẫn ở catalog HTML. Lời gọi chưa phân giải được đánh dấu rõ. Python, JavaScript/TypeScript, Rust, Go, Java, PHP và C# có [mức chi tiết khác nhau](docs/LOGIC_ATLAS.md). |
 | "Phần nào đang rối?" | File import lẫn nhau theo vòng tròn, file mà ai cũng phụ thuộc, và các file lớn nhất. |
 | "Ta chưa hiểu gì?" | Danh sách **điều chưa biết** (unknown). Công cụ ghi "không biết" thay vì đoán. |
 | "Chỗ nào bị viết vội?" | File nào bị viết lại nhiều nhất trong lịch sử Git. |
@@ -116,12 +116,20 @@ python scripts/logic_atlas.py --target /path/to/your/project --outdir reports/at
 
 Mở `reports/atlas/INDEX.md` và đi theo các liên kết.
 
-- Dự án Python tạo ra `python-map.html`, `python-map.svg` và `python-calls.dot`.
+- Dự án Python tạo ra `python-map.html`, một hoặc nhiều trang `python-map*.svg` có liên kết, và `python-calls.dot`.
 - Dự án JavaScript/TypeScript tạo ra `frontend-map.html` và `frontend-functions.html` (cần Node và `npx`).
 - Thêm `--pdf` để có PDF nếu máy có trình xuất PDF.
 - Chỉ những file được Git theo dõi mới được đọc.
 - Mã thoát `2` cùng chữ `INCOMPLETE` nghĩa là bản đồ đã có nhưng thiếu một số phần. Mở `manifest.json` trong cùng thư mục để xem phần nào.
-- Với dự án lớn, hãy lập bản đồ từng thư mục một: thêm `--scope path/to/folder`.
+- Scope Python lớn được tự chia thành nhiều bản đồ; mở `python-shards/INDEX.md`. Lời gọi giữa các shard chưa được giải quyết. Thêm `--scope path/to/folder` để khảo sát một hành trình cụ thể.
+
+Để có chỉ mục tìm kiếm theo hàm Python, tham số, biến cục bộ, điều kiện, ngoại lệ và caller/callee tĩnh, chạy:
+
+```bash
+python scripts/repo_explorer.py --generic --root /path/to/your/project --sources src tests --out reports/source-explorer.html
+```
+
+Mở `reports/source-explorer.html`; file JSON cạnh đó dành cho máy đọc. Thay `src tests` bằng thư mục source của dự án. Đây là chỉ mục tĩnh, chưa xác minh chuỗi thực thi runtime.
 
 ### Bước 2: tìm vấn đề (không cần AI)
 

@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tomllib
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +29,8 @@ EXTS = {
 OTHER_CODE_EXTS = {".c", ".cc", ".cpp", ".h", ".hpp", ".kt", ".kts", ".swift",
                    ".rb", ".scala", ".sc", ".dart", ".ex", ".exs", ".lua",
                    ".hs", ".zig", ".m", ".mm", ".pyx", ".sh", ".bash"}
+ASSET_SKIP_DIRS = {"audit_claude", "logs_audit", "test_e2e", "tokenizer", "corpora",
+                   "attachments", "artifacts", "evidence", "VIBE_RESCUE"}
 
 
 def manifest():
@@ -71,6 +74,41 @@ def classify(files):
             for lang, exts in EXTS.items()}
 
 
+def write_assets(files, outdir):
+    """Path-only inventory of contracts that a source call graph cannot explain."""
+    groups = {name: [] for name in ("rules", "prompts", "configs", "pipelines", "harness")}
+    skipped = 0
+    for path in files:
+        if any(part in ASSET_SKIP_DIRS for part in path.parts):
+            skipped += 1
+            continue
+        name = path.name.lower()
+        whole = str(path).lower()
+        if name in {"agents.md", "claude.md", "kimi.md", "gemini.md", "skill.md",
+                    "codex.md", ".cursorrules"}:
+            groups["rules"].append(str(path))
+        if "prompt" in name or path.suffix.lower() in {".jinja", ".j2", ".tmpl"}:
+            groups["prompts"].append(str(path))
+        if "config" in name or path.suffix.lower() in {".yaml", ".yml", ".toml", ".ini", ".cfg"}:
+            groups["configs"].append(str(path))
+        if "pipeline" in whole or "orchestrat" in whole:
+            groups["pipelines"].append(str(path))
+        if "harness" in whole:
+            groups["harness"].append(str(path))
+    (outdir / "ASSETS.json").write_text(json.dumps({"groups": groups,
+        "excluded_paths": skipped, "method": "Git-tracked path metadata only; no asset content read"},
+        ensure_ascii=False, indent=1), encoding="utf-8")
+    lines = ["# Asset inventory", "",
+             "Git-tracked paths only. Content, freshness, active wiring, and contradictions are not verified.", ""]
+    for name, paths in groups.items():
+        lines.extend([f"## {name} ({len(paths)})", ""])
+        lines.extend(f"- `{path}`" for path in paths)
+        lines.append("")
+    (outdir / "ASSETS.md").write_text("\n".join(lines), encoding="utf-8")
+    return {"artifact": "ASSETS.md", "counts": {name: len(paths) for name, paths in groups.items()},
+            "excluded_paths": skipped}
+
+
 def _run(args, cwd, output, timeout, env=None):
     try:
         result = subprocess.run(args, cwd=cwd, capture_output=True, text=True,
@@ -110,6 +148,84 @@ def _pyan_graph(dot):
                           "kind": "Pyan static uses"})
     return {"nodes": nodes, "edges": edges, "unknown": [],
             "evidence": "Pyan static uses; dynamic dispatch unverified"}
+
+
+def _python_cmd(paths, cfg):
+    version = cfg["logic_map"]["packages"]["pyan3"]
+    return ["uvx", "--from", f"pyan3=={version}", "pyan3",
+            *[f"./{p}" for p in paths], "--uses", "--no-defines", "--depth", "2", "--dot"]
+
+
+def _python_partitions(paths, prefix, max_files):
+    """Keep related files together, then bisect only when one group is still huge."""
+    if len(paths) <= max_files:
+        return [paths]
+    groups = {}
+    for path in paths:
+        rest = path.relative_to(prefix).parts
+        groups.setdefault(rest[0], []).append(path)
+    if len(groups) == 1:
+        half = len(paths) // 2
+        return (_python_partitions(paths[:half], prefix, max_files)
+                + _python_partitions(paths[half:], prefix, max_files))
+    return [part for name, group in sorted(groups.items())
+            for part in _python_partitions(group, prefix / name, max_files)]
+
+
+def _python_shards(paths, target, scope, outdir, cfg, max_files, timeout, pdf):
+    """Map every tracked Python file even when one Pyan graph exceeds 5 MB."""
+    shard_root = outdir / "python-shards"
+    shard_root.mkdir(parents=True, exist_ok=True)
+    planned = _python_partitions(sorted(paths), scope.relative_to(target), max_files)
+
+    def one(group, folder):
+        folder.mkdir(parents=True, exist_ok=True)
+        output = folder / "python-calls.dot"
+        run = _run(_python_cmd(group, cfg), target, output, timeout)
+        if run["status"] == "failed" and run.get("reason") == "graph >5 MB; thu hẹp --scope" \
+                and len(group) > 1:
+            half = len(group) // 2
+            return (one(group[:half], folder / "part-1")
+                    + one(group[half:], folder / "part-2"))
+        record = {"files": len(group), "first_file": str(group[0]),
+                  "last_file": str(group[-1]), "status": run["status"],
+                  "directory": str(folder.relative_to(outdir))}
+        if run["status"] == "ok":
+            graph = _pyan_graph(output.read_text(encoding="utf-8"))
+            record["view"] = write_graph(graph, f"{target.name} · Python",
+                                         folder, "python-map", pdf=pdf)
+            if not graph["nodes"]:
+                record["status"] = "partial"
+                record["reason"] = "parser không trích được symbol nào"
+        else:
+            record["reason"] = run.get("reason", "tool failed")
+        return [record]
+
+    with ThreadPoolExecutor(max_workers=min(4, len(planned))) as pool:
+        futures = [pool.submit(one, group, shard_root / f"shard-{idx:03d}")
+                   for idx, group in enumerate(planned, 1)]
+        records = [record for future in futures for record in future.result()]
+    mapped = sum(x["files"] for x in records if x["status"] == "ok")
+    failed = sum(x["files"] for x in records if x["status"] != "ok")
+    rows = ["# Python atlas shards", "",
+            ("All tracked Python files are assigned to a shard. Function calls across "
+             "shards are not resolved; inspect the combined import graph separately."), "",
+            "| First file | Files | Status | HTML | SVG pages |", "| --- | ---: | --- | --- | --- |"]
+    for item in records:
+        view = item.get("view", {})
+        folder = item["directory"].removeprefix("python-shards/")
+        html = f"[{view['html']}]({folder}/{view['html']})" if view.get("html") else item.get("reason", "")
+        pages = view.get("svg_pages", [])
+        svg = ", ".join(f"[{i + 1}]({folder}/{name})" for i, name in enumerate(pages))
+        rows.append(f"| `{item['first_file']}` | {item['files']} | {item['status']} | {html} | {svg} |")
+    (shard_root / "INDEX.md").write_text("\n".join(rows) + "\n", encoding="utf-8")
+    (outdir / "python-shards.json").write_text(json.dumps(records, ensure_ascii=False, indent=1),
+                                                 encoding="utf-8")
+    return {"status": "partial" if failed == 0 else "failed",
+            "reason": "sharded graph; cross-shard function calls unresolved" if failed == 0
+                      else f"{failed} Python files lacked a complete shard map",
+            "artifact": "python-shards/INDEX.md", "shards": len(records),
+            "mapped_files": mapped, "unmapped_files": failed}
 
 
 def _frontend_graph(raw, files):
@@ -164,21 +280,23 @@ def generate(target, scope, outdir, max_files=400, timeout=180, inventory_only=F
     mapped = {p for paths in groups.values() for p in paths}
     unmapped = [str(p) for p in files if p not in mapped and p.suffix.lower() in OTHER_CODE_EXTS]
     outdir.mkdir(parents=True, exist_ok=True)
+    assets = write_assets(files, outdir)
     cfg = manifest()
     tools = {}
     if not inventory_only:
         for lang, paths in groups.items():
             if not paths:
                 continue
-            if len(paths) > max_files:
+            if len(paths) > max_files and lang != "python":
                 tools[lang] = {"status": "too_large", "reason": f"{len(paths)} files; chia --scope"}
                 continue
             graph = None
             if lang == "python":
-                version = cfg["logic_map"]["packages"]["pyan3"]
-                cmd = ["uvx", "--from", f"pyan3=={version}", "pyan3",
-                       *[f"./{p}" for p in paths], "--uses", "--no-defines",
-                       "--depth", "2", "--dot"]
+                if len(paths) > max_files:
+                    tools[lang] = _python_shards(paths, target, scope, outdir, cfg,
+                                                 max_files, timeout, pdf)
+                    continue
+                cmd = _python_cmd(paths, cfg)
                 output = outdir / "python-calls.dot"
             elif lang == "frontend":
                 if not shutil.which("npx"):
@@ -203,6 +321,11 @@ def generate(target, scope, outdir, max_files=400, timeout=180, inventory_only=F
                     tools[lang] = {"status": "unavailable", "reason": f"thiếu {cmd[0]}"}
                     continue
                 tools[lang] = _run(cmd, target, output, timeout)
+                if tools[lang]["status"] == "failed" and tools[lang].get("reason") \
+                        == "graph >5 MB; thu hẹp --scope" and len(paths) > 1:
+                    tools[lang] = _python_shards(paths, target, scope, outdir, cfg,
+                                                 max_files, timeout, pdf)
+                    continue
                 if tools[lang]["status"] == "ok":
                     graph = _pyan_graph(output.read_text(encoding="utf-8"))
             if graph is not None and tools[lang]["status"] in {"ok", "partial"}:
@@ -250,6 +373,7 @@ def generate(target, scope, outdir, max_files=400, timeout=180, inventory_only=F
               "unmapped_code_files": len(unmapped),
               "skipped_tracked_paths": len(skipped),
               "tracked_changes": len(dirty), "tools": tools,
+              "assets": assets,
               "source": "static analysis of tracked working tree; runtime branches unverified"}
     (outdir / "manifest.json").write_text(json.dumps(result, ensure_ascii=False, indent=2),
                                             encoding="utf-8")
@@ -260,6 +384,9 @@ def generate(target, scope, outdir, max_files=400, timeout=180, inventory_only=F
             view = data["view"]
             artifact += (f" · [HTML]({view['html']}) · [SVG]({view['svg']})"
                          + (f" · [PDF]({view['pdf']})" if view.get("pdf") else ""))
+            pages = view.get("svg_pages", [])
+            if len(pages) > 1:
+                artifact += f" · {len(pages)} SVG pages linked from HTML"
             if view.get("pdf_error"):
                 artifact += " · PDF unavailable"
         rows.append(f"| {lang} | {data['status']} | {artifact} |")
@@ -268,6 +395,7 @@ def generate(target, scope, outdir, max_files=400, timeout=180, inventory_only=F
         f"- Commit: `{head}`", f"- Scope: `{result['scope']}`",
         f"- Tracked changes since HEAD: {len(dirty)} (0 = graph đúng snapshot commit).",
         (f"- Tracked files: {len(files)}; " + ", ".join(f"{k} {len(v)}" for k, v in groups.items()) + "."),
+        "- [Config, prompt, pipeline, and harness path inventory](ASSETS.md).",
         "- Mũi tên trong graph là phân tích tĩnh; chưa chứng minh nhánh runtime.",
         "", "| Nhóm | Trạng thái | Evidence |", "|---|---|---|", *rows, "",
         ("Dùng [journey template](JOURNEY_TEMPLATE.md) để nối UI → API → service → dữ liệu "

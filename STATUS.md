@@ -4,6 +4,23 @@
 > sinh tự động và không thuộc gói public. Các số test bên dưới chỉ đúng tại lần
 > chạy được ghi rõ; không dùng chúng để suy ra trạng thái của commit mới.
 
+## 2026-10-23 — atlas phân trang và Source Explorer
+
+- `logic_atlas.py` nay tự chia Python scope lớn, giữ số file đã map/chưa map và
+  ghi rõ lời gọi qua shard chưa được giải quyết. HTML dẫn tới mọi trang SVG,
+  mỗi trang tối đa 120 symbol; cạnh qua trang ở catalog HTML. Path inventory
+  cho rules/prompts/config/pipeline/harness không đọc nội dung asset. Generic
+  Python Source Explorer lưu HTML/JSON và vẽ SVG caller → hàm → callee khi
+  chọn một hàm; không thực thi target. Radon path normalization đã sửa để
+  finding trỏ về file đúng. Tài liệu EN/VI và LOGIC_ATLAS đã cập nhật.
+- Validation của lượt này: full pytest 100% exit 0 sau thay đổi Source Explorer;
+  focused tests 35 passed sau thay đổi SVG edge count. Ruff pass trên source và
+  test đã đổi; Markdownlint README EN/VI và LOGIC_ATLAS pass; 138 SVG parse được; Source Explorer đã
+  xem trong Chromium và JS qua `node --check`. Atlas exit 2 khi kết quả
+  `partial` (cross-page/unresolved/unsupported) là đúng, không phải lỗi chạy tool.
+  Markdownlint toàn STATUS còn lỗi dòng dài/inline HTML từ các mục lịch sử.
+  Trạng thái commit và remote xem Git; không suy từ mục lịch sử này.
+
 ## 2026-10-23 — README: phạm vi EXPLORE
 
 - README EN/VI được sửa cùng nội dung: phân biệt scanner finding với defect, nêu

@@ -33,7 +33,7 @@ Vibe Rescue turns that fog into **a list of concrete, checkable facts** and **a 
 | Question your team asks | What Vibe Rescue gives you |
 | --- | --- |
 | "What is in this project?" | Languages used, what starts the program (entry points), how tests run, the 10 largest files, which files look generated or copied from elsewhere. |
-| "Who calls whom?" | Searchable pages and diagrams of tracked source files and statically resolved symbols and calls. Large diagrams are truncated for display; unresolved calls are marked. Python, JavaScript/TypeScript, Rust, Go, Java, PHP and C# have [different levels of detail](docs/LOGIC_ATLAS.md). |
+| "Who calls whom?" | Searchable HTML and SVG pages for tracked source files, statically resolved symbols and calls. Large Python diagrams are split into linked SVG pages; cross-page calls remain in the HTML catalog. Unresolved calls are marked. Python, JavaScript/TypeScript, Rust, Go, Java, PHP and C# have [different levels of detail](docs/LOGIC_ATLAS.md). |
 | "Which parts are tangled?" | Files that import each other in circles, files everyone depends on, and the largest files. |
 | "What do we not understand?" | A list of **unknowns**. The tool writes "I don't know" instead of guessing. |
 | "Where was the code rushed?" | Which files were rewritten the most in the Git history. |
@@ -116,12 +116,20 @@ python scripts/logic_atlas.py --target /path/to/your/project --outdir reports/at
 
 Open `reports/atlas/INDEX.md` and follow the links.
 
-- Python projects produce `python-map.html`, `python-map.svg` and `python-calls.dot`.
+- Python projects produce `python-map.html`, one or more linked `python-map*.svg` pages, and `python-calls.dot`.
 - JavaScript/TypeScript projects produce `frontend-map.html` and `frontend-functions.html` (needs Node and `npx`).
 - Add `--pdf` for a PDF if a PDF renderer is installed.
 - Only files tracked by Git are read.
 - Exit code `2` with the word `INCOMPLETE` means the map exists but some parts are missing. Open `manifest.json` in the same folder to see which.
-- For a large project, map one folder at a time: add `--scope path/to/folder`.
+- Large Python scopes are split into shard maps automatically; open `python-shards/INDEX.md`. Calls across shards are unresolved. Use `--scope path/to/folder` for a focused journey.
+
+For a searchable source-level ledger of Python functions, parameters, local variables, guards, raises and static callers/callees, run:
+
+```bash
+python scripts/repo_explorer.py --generic --root /path/to/your/project --sources src tests --out reports/source-explorer.html
+```
+
+Open `reports/source-explorer.html`; the adjacent JSON is machine-readable. Replace `src tests` with the source directories in your project. This is a static index, not a verified runtime sequence.
 
 ### Step 2: find the problems (no AI)
 

@@ -13,8 +13,8 @@ def _esc(value):
     return html.escape(str(value), quote=True)
 
 
-def svg_for_graph(graph, title):
-    nodes = graph.get("nodes", [])[:MAX_NODES]
+def svg_for_graph(graph, title, page_nodes=None):
+    nodes = graph.get("nodes", [])[:MAX_NODES] if page_nodes is None else page_nodes
     ids = {n["id"] for n in nodes}
     edges = [e for e in graph.get("edges", []) if e["source"] in ids and e["target"] in ids]
     columns, card_w, card_h, x_gap, y_gap = 3, 360, 84, 36, 38
@@ -108,7 +108,7 @@ def _catalog(graph):
                      f'{_esc(item.get("call", item.get("import", "unknown")))} · '
                      f'{_esc(item.get("reason", "unresolved"))}</li>' for item in unknown]
     return (f'<section id="catalog" class="catalog"><h2>Full source catalog · {len(nodes)} symbols '
-            f'· {len(edges)} static edges</h2><p>SVG chỉ là preview tối đa {MAX_NODES} node. '
+            f'· {len(edges)} static edges</h2><p>SVG được chia trang tối đa {MAX_NODES} node. '
             'Danh mục dưới đây giữ toàn bộ node/cạnh parser trả về; unknown vẫn ở cuối.</p>'
             '<input id="catalog-find" aria-label="Tìm toàn bộ symbol" '
             'placeholder="Tìm tên hàm, file hoặc ID...">'
@@ -120,14 +120,30 @@ def _catalog(graph):
 
 def write_graph(graph, title, outdir: Path, stem: str, pdf=False):
     outdir.mkdir(parents=True, exist_ok=True)
+    nodes = graph.get("nodes", [])
     svg, shown_nodes, shown_edges = svg_for_graph(graph, title)
     svg_path = outdir / f"{stem}.svg"
     html_path = outdir / f"{stem}.html"
     svg_path.write_text(svg, encoding="utf-8")
-    incomplete = len(graph.get("nodes", [])) > shown_nodes
-    note = (f"SVG hiển thị {shown_nodes}/{len(graph.get('nodes', []))} symbol; "
-            f"{shown_edges}/{len(graph.get('edges', []))} cạnh. "
-            f"Catalog HTML giữ toàn bộ symbol/cạnh; unknown: {len(graph.get('unknown', []))}. "
+    incomplete = len(nodes) > shown_nodes
+    pages = [svg_path.name]
+    visual_edges = shown_edges
+    if incomplete:
+        for start in range(MAX_NODES, len(nodes), MAX_NODES):
+            page = outdir / f"{stem}-page-{start // MAX_NODES + 1:03d}.svg"
+            page_svg, _, page_edges = svg_for_graph(
+                graph, f"{title} · page {start // MAX_NODES + 1}",
+                nodes[start:start + MAX_NODES])
+            page.write_text(page_svg, encoding="utf-8")
+            pages.append(page.name)
+            visual_edges += page_edges
+    page_links = "".join(
+        f'<a href="{_esc(name)}">{idx + 1}: '
+        f'{idx * MAX_NODES + 1}–{min((idx + 1) * MAX_NODES, len(nodes))}</a>'
+        for idx, name in enumerate(pages))
+    note = (f"SVG: {len(pages)} page(s), {len(nodes)}/{len(nodes)} symbol; "
+            f"{visual_edges}/{len(graph.get('edges', []))} cạnh cùng trang. "
+            f"Cạnh giữa các trang nằm trong catalog HTML; unknown: {len(graph.get('unknown', []))}. "
             "Mũi tên chỉ là bằng chứng phân tích tĩnh; cần test/trace để xác nhận runtime.")
     catalog = _catalog(graph)
     canvas = (f'<details class="diagram"><summary>Mở SVG preview ({shown_nodes} node)</summary>'
@@ -142,6 +158,7 @@ h1{{font-size:24px;margin:0}} button,input{{font:inherit;padding:8px 12px;border
 button{{cursor:pointer}} main{{padding:20px;max-width:1500px;margin:auto}} .notice{{background:#282536;border-left:3px solid #e5ae6c;padding:12px 16px;border-radius:8px}}
 .canvas{{overflow:auto;max-height:620px;background:white;border-radius:12px;margin-top:16px}} .canvas svg{{max-width:none}}
 .diagram{{margin-top:16px}}.diagram summary{{cursor:pointer;color:#7de1c4;font-weight:700}}
+.pages{{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}} .pages a{{color:#7de1c4;padding:5px 8px;background:#17253c;border-radius:6px}}
 .catalog{{margin-top:36px}}.catalog h2{{font-size:27px}}.catalog p{{color:#a9bdcd}}
 #catalog-find{{width:min(100%,620px);background:#13243a;color:#e2e8f0;border-color:#4d6a82}}
 .symbols{{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:9px;margin-top:16px}}
@@ -154,7 +171,7 @@ button{{cursor:pointer}} main{{padding:20px;max-width:1500px;margin:auto}} .noti
 </style><header><h1>{_esc(title)}</h1><input id="find" aria-label="Tìm symbol hoặc file" placeholder="Tìm symbol/file">
 <button id="save">Tải SVG</button><a href="#catalog">Danh mục đầy đủ</a>
 <button onclick="window.print()">In / lưu PDF</button></header>
-<main><p class="notice">{_esc(note)}</p>{canvas}{catalog}</main>
+<main><p class="notice">{_esc(note)}</p><nav class="pages" aria-label="SVG pages">{page_links}</nav>{canvas}{catalog}</main>
 <script>const input=document.getElementById('find');input.addEventListener('input',()=>{{
 let q=input.value.toLowerCase().trim();for(let n of document.querySelectorAll('.node')){{
 n.classList.toggle('dim',!!q&&!((n.dataset.label||'').includes(q)||(n.dataset.source||'').includes(q)));}}}});
@@ -171,6 +188,9 @@ setTimeout(()=>URL.revokeObjectURL(a.href),1000);}});</script></html>"""
               "shown_edges": shown_edges, "total_edges": len(graph.get("edges", [])),
               "catalog_nodes": len(graph.get("nodes", [])),
               "catalog_edges": len(graph.get("edges", [])),
+              "svg_pages": pages,
+              "visual_nodes": len(nodes),
+              "visual_edges": visual_edges,
               "unknown": len(graph.get("unknown", [])), "truncated": incomplete}
     if pdf:
         pdf_path = outdir / f"{stem}.pdf"

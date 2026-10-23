@@ -32,9 +32,23 @@ def test_inventory_is_multilanguage_and_does_not_write_target(tmp_path):
     assert result["language_files"]["frontend"] == 1
     assert result["language_files"]["rust"] == 1
     assert (out / "INDEX.md").exists()
+    assert (out / "ASSETS.md").exists()
     assert (out / "JOURNEY_TEMPLATE.md").exists()
     assert subprocess.run(["git", "status", "--porcelain"], cwd=repo,
                           capture_output=True, text=True, check=True).stdout == ""
+
+
+def test_asset_inventory_lists_contract_paths_without_reading_contents(tmp_path):
+    paths = [Path("apps/chat/config.yaml"), Path("tools/agent_harness/prompt.txt"),
+             Path("skills/domain/SKILL.md"), Path("audit_claude/secret_prompt.md")]
+    result = logic_atlas.write_assets(paths, tmp_path)
+    report = (tmp_path / "ASSETS.md").read_text()
+    assert result["counts"]["configs"] == 1
+    assert result["counts"]["prompts"] == 1
+    assert result["counts"]["harness"] == 1
+    assert result["counts"]["rules"] == 1
+    assert result["excluded_paths"] == 1
+    assert "audit_claude" not in report
 
 
 def test_scope_cannot_escape_target(tmp_path):
@@ -150,6 +164,11 @@ def test_html_catalog_keeps_nodes_edges_and_unknown_beyond_svg_limit(tmp_path):
     result = write_graph(graph, "Large graph", tmp_path, "large")
     page = (tmp_path / "large.html").read_text()
     assert result["truncated"] and result["shown_nodes"] == 120
+    assert result["visual_nodes"] == 125
+    assert result["visual_edges"] == 0  # the one edge crosses SVG pages
+    assert result["svg_pages"] == ["large.svg", "large-page-002.svg"]
+    assert "function_124" in (tmp_path / "large-page-002.svg").read_text()
+    assert 'href="large-page-002.svg"' in page
     assert '<details class="diagram">' in page
     assert 'Full source catalog · 125 symbols · 1 static edges' in page
     assert 'function_124' in page and 'direct call' in page
@@ -165,6 +184,32 @@ def test_atlas_does_not_follow_tracked_symlinks(tmp_path):
     assert Path("backend/link.py") not in logic_atlas.tracked_files(repo, repo)
     result = logic_atlas.generate(repo, repo, tmp_path / "atlas", inventory_only=True)
     assert result["tools"]["safety"]["status"] == "skipped"
+
+
+def test_python_atlas_shards_large_graph_without_dropping_files(tmp_path, monkeypatch):
+    repo = _repo(tmp_path)
+    paths = [Path("backend/a.py"), Path("backend/b.py"), Path("backend/c.py")]
+    for path in paths:
+        (repo / path).write_text("def f(): return 1\n")
+
+    def fake_run(cmd, _cwd, output, _timeout, env=None):
+        selected = [arg[2:] for arg in cmd if arg.startswith("./")]
+        if len(selected) > 1:
+            return {"status": "failed", "reason": "graph >5 MB; thu hẹp --scope"}
+        output.write_text(
+            f'digraph G {{\n"f" [label="f", tooltip="{selected[0]}:1"];\n}}\n')
+        return {"status": "ok", "artifact": output.name}
+
+    monkeypatch.setattr(logic_atlas, "_run", fake_run)
+    out = tmp_path / "large-atlas"
+    result = logic_atlas._python_shards(paths, repo, repo / "backend", out,
+                                        logic_atlas.manifest(), max_files=3,
+                                        timeout=5, pdf=False)
+    assert result["status"] == "partial"
+    assert result["shards"] == 3
+    assert result["mapped_files"] == 3
+    assert result["unmapped_files"] == 0
+    assert "backend/c.py" in (out / "python-shards" / "INDEX.md").read_text()
 
 
 def test_unmapped_language_is_reported_instead_of_claiming_complete(tmp_path):

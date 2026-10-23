@@ -112,3 +112,35 @@ def test_bad_source_anchor_is_rejected(tmp_path):
     with pytest.raises(ValueError, match="invalid source anchor"):
         main(["--root", str(tmp_path), "--journeys", str(tmp_path / "journeys.json"),
               "--out", str(tmp_path / "atlas.html")])
+
+
+def test_generic_explorer_indexes_guards_raises_and_variables(tmp_path):
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "service.py").write_text(
+        "def handle(value):\n"
+        "    result = value + 1\n"
+        "    if result < 0:\n"
+        "        raise ValueError('bad')\n"
+        "    return result\n")
+    output = tmp_path / "report" / "source.html"
+    assert main(["--generic", "--root", str(tmp_path), "--sources", "src",
+                 "--out", str(output)]) == 0
+    data = json.loads(output.with_suffix(".json").read_text())
+    row = data["functions"][0]
+    assert row["locals"] == ["result"]
+    assert row["guards"] == [{"line": 3, "kind": "if", "expression": "result < 0"}]
+    assert row["raises"][0]["line"] == 4
+    page = output.read_text()
+    assert "Source Explorer" in page and "Calls unresolved" in page
+    assert 'id="ego"' in page and "Download selected SVG" in page
+    assert "function renderEgo(x)" in page and "x.guards.length" in page
+    assert '"src.service.handle"' in page
+
+
+def test_generic_explorer_requires_an_explicit_existing_source_scope(tmp_path):
+    with pytest.raises(SystemExit) as missing:
+        main(["--generic", "--root", str(tmp_path)])
+    assert missing.value.code == 2
+    with pytest.raises(SystemExit) as absent:
+        main(["--generic", "--root", str(tmp_path), "--sources", "missing"])
+    assert absent.value.code == 2

@@ -37,21 +37,32 @@ Chromium/Chrome; nếu không có, HTML vẫn có nút In / lưu PDF. Source Cod
 không cần cài để chạy atlas; chỉ khi muốn khảo sát upstream mới dùng
 `python3 scripts/bootstrap_logic_tools.py` rồi `--check` để xác nhận SHA.
 
-Đào một scope nhỏ mỗi lần. Nếu trên 400 file ở một ngôn ngữ, atlas yêu cầu chia
-scope thay vì vẽ graph khổng lồ. `--inventory-only` chỉ đếm và lập template.
-Mỗi **SVG** hiển thị tối đa 120 symbol để vẫn đọc được; **HTML có catalog đầy đủ
-mọi symbol/cạnh parser trả về**, tìm theo tên/file/ID và xem incoming/outgoing,
-unknown. `manifest.json` báo `partial` khi SVG bị cắt, import unresolved hoặc
-parser thiếu; catalog không làm cho parse thiếu trở thành đầy đủ. Chia scope để
-có sơ đồ SVG rõ cho phần cần cứu. PDF là bản in tĩnh của HTML; dùng HTML để
-tra cứu catalog tương tác và tải SVG offline.
+Scope Python trên 400 file hoặc có graph vượt 5 MB được chia thành shard; mở
+`python-shards/INDEX.md` để xem HTML/SVG của từng phần. Cả khi mọi file đã có
+map, manifest vẫn báo `partial` vì lời gọi qua shard chưa được giải quyết. Các
+ngôn ngữ khác trên 400 file vẫn cần chia `--scope`. `--inventory-only` chỉ đếm,
+lập template và kiểm kê path của rules/prompts/config/pipeline/harness, không đọc
+nội dung asset.
+
+Mỗi trang **SVG** hiển thị tối đa 120 symbol; **HTML liên kết tất cả trang SVG**
+và giữ catalog đầy đủ mọi symbol/cạnh parser trả về, tìm theo tên/file/ID và xem
+incoming/outgoing, unknown. Cạnh qua trang chỉ có trong HTML catalog, không
+thành mũi tên nối hai trang. `manifest.json` báo `partial` khi có giới hạn hiển
+thị, import unresolved hoặc parser thiếu; catalog không làm cho parse thiếu trở
+thành đầy đủ. Chia scope để có sơ đồ dễ đọc cho phần cần cứu. PDF là bản in tĩnh
+của HTML; dùng HTML để tra cứu catalog tương tác và tải SVG offline.
+
+Nếu cần chỉ mục hàm Python kèm tham số, biến, guard, raise và static caller/callee
+cho một target, dùng `python scripts/repo_explorer.py --generic --root /path/to/repo
+--sources src tests --out reports/source-explorer.html`. Đây vẫn là phân tích
+tĩnh, không chạy target và không dựng hành trình lâm sàng tự động.
 Atlas ghi HEAD và số file Git-tracked đã sửa; số khác 0 nghĩa graph phản ánh
 working tree, **không phải** snapshot chính xác của commit ghi bên cạnh.
 
 ## Vai trò từng tool và giới hạn
 
 | Tool | Bằng chứng | Chưa chứng minh |
-|---|---|---|
+| --- | --- | --- |
 | [CodeBoarding](https://github.com/CodeBoarding/CodeBoarding) | Gợi ý nhóm chức năng, sơ đồ nhiều tầng cho Python/JS/TS/Rust/Go/Java/PHP/C# | Đường runtime, mọi nhánh, tính đúng của diễn giải LLM |
 | [Pyan3](https://github.com/Technologicat/pyan) | Call graph tĩnh Python | Callback/factory/dynamic dispatch chắc chắn chạy |
 | [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) | Import/dependency JS/TS, kể cả frontend | Event handler → API request → backend behavior |

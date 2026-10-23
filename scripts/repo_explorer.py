@@ -9,6 +9,7 @@ import ast
 import hashlib
 import html
 import json
+import os
 import re
 import tempfile
 import tomllib
@@ -28,17 +29,17 @@ def _attr(node):
     return None
 
 
-def _source_files(root):
-    for directory in SOURCES:
+def _source_files(root, directories=SOURCES):
+    for directory in directories:
         for path in sorted((root / directory).rglob("*.py")):
             if path.is_file() and not path.is_symlink() and not {"__pycache__", ".ipynb_checkpoints"}.intersection(path.parts):
                 yield path
 
 
-def index(root=ROOT):
+def index(root=ROOT, sources=SOURCES, asset_dirs=ASSETS):
     """Inventory every Python definition and exact static calls in source and tests."""
     root = Path(root).resolve()
-    files = list(_source_files(root))
+    files = list(_source_files(root, sources))
     records, modules, import_maps, constants, parse_errors = [], {}, {}, {}, []
     digest = hashlib.sha256()
     for path in files:
@@ -73,7 +74,7 @@ def index(root=ROOT):
             for item in body:
                 if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     qual = prefix + item.name
-                    calls, locals_, fields = [], set(), set()
+                    calls, locals_, fields, guards, raises = [], set(), set(), [], []
                     stack = list(item.body)
                     while stack:
                         node = stack.pop()
@@ -84,11 +85,20 @@ def index(root=ROOT):
                             name = _attr(node.func)
                             if name:
                                 calls.append({"name": name, "line": node.lineno})
+                        if isinstance(node, (ast.If, ast.While, ast.Assert)):
+                            guards.append({"line": node.lineno, "kind": type(node).__name__.lower(),
+                                           "expression": ast.unparse(node.test)})
+                        elif isinstance(node, ast.ExceptHandler):
+                            guards.append({"line": node.lineno, "kind": "except",
+                                           "expression": ast.unparse(node.type) if node.type else "*"})
+                        elif isinstance(node, ast.Raise):
+                            raises.append({"line": node.lineno,
+                                           "expression": ast.unparse(node.exc) if node.exc else "raise"})
                         elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
                             locals_.add(node.id)
-                        elif isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
-                            if node.value.id in {"c", "self", "state", "result"}:
-                                fields.add(f"{node.value.id}.{node.attr}")
+                        elif (isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name)
+                              and node.value.id in {"c", "self", "state", "result"}):
+                            fields.add(f"{node.value.id}.{node.attr}")
                         stack.extend(ast.iter_child_nodes(node))
                     args = [a.arg for a in item.args.posonlyargs + item.args.args +
                             item.args.kwonlyargs]
@@ -101,6 +111,8 @@ def index(root=ROOT):
                                     "end": item.end_lineno, "args": args,
                                     "locals": sorted(locals_ - set(args)),
                                     "fields": sorted(fields), "calls": calls,
+                                    "guards": sorted(guards, key=lambda x: x["line"]),
+                                    "raises": sorted(raises, key=lambda x: x["line"]),
                                     "doc": ast.get_docstring(item) or "",
                                     "kind": "async" if isinstance(item, ast.AsyncFunctionDef)
                                     else "function"})
@@ -137,7 +149,7 @@ def index(root=ROOT):
     for item in records:
         item["callers"] = sorted(callers[item["id"]], key=lambda e: (e["from"], e["line"]))
     assets = {}
-    for directory in ASSETS:
+    for directory in asset_dirs:
         assets[directory] = sorted(p.relative_to(root).as_posix() for p in (root / directory).rglob("*")
                                    if p.is_file() and not p.is_symlink()
                                    and ".ipynb_checkpoints" not in p.parts)
@@ -304,6 +316,79 @@ const grid=document.getElementById('asset-grid');for(const [name,files] of Objec
     output.write_text(page, encoding="utf-8")
 
 
+def render_generic(data, root, output):
+    """Offline, searchable source ledger for an arbitrary Python repository."""
+    payload = json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")
+    prefix = os.path.relpath(root, output.parent).replace("\\", "/").rstrip("/") + "/"
+    title = html.escape(root.name)
+    page = '''<!doctype html><html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Source Explorer · __TITLE__</title>
+<style>:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0b1220;color:#e7f0f6;font:15px/1.5 system-ui}
+header{padding:25px 4vw;background:#15263a;border-bottom:1px solid #38516a}h1{margin:0 0 8px}p{color:#b6c9d7}
+main{padding:22px 4vw;max-width:1800px;margin:auto}input{width:100%;padding:12px;background:#13243a;color:#fff;border:1px solid #507089;border-radius:8px}
+.layout{display:grid;grid-template-columns:minmax(280px,34%) 1fr;gap:18px;margin-top:18px}.list{max-height:76vh;overflow:auto;border:1px solid #35506b;border-radius:10px}
+.list button{display:block;width:100%;border:0;border-bottom:1px solid #30465b;background:#142237;color:#e7f0f6;text-align:left;padding:10px;cursor:pointer}
+.list button:hover{background:#214657}.list small{display:block;color:#a7bfce}.detail{border:1px solid #35506b;border-radius:10px;padding:20px;overflow:auto}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#101d2e;padding:12px;border-radius:7px}a{color:#76e3c4}code{color:#9bead6}
+.map{overflow:auto;border:1px solid #35506b;border-radius:10px;margin:14px 0;background:#0b1220}.map svg{display:block;min-width:1000px;width:100%}
+.save{border:1px solid #509781;border-radius:7px;background:#173d40;color:#e7f0f6;padding:8px 12px;cursor:pointer}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.list{max-height:34vh}}</style>
+<header><h1>Source Explorer · __TITLE__</h1><p id="stats"></p><p>Static Python syntax only. Guards and raises are syntactic locations, not proof of runtime behavior. Dynamic calls remain unresolved.</p></header>
+<main><input id="search" placeholder="Search function, path, parameter, variable, field or call"><p id="count"></p>
+<p id="map-note">Select a function for its static caller → function → callee SVG. All references remain in the detail panel.</p>
+<button id="save-svg" class="save" hidden>Download selected SVG</button><div id="ego" class="map"></div>
+<div class="layout"><div id="list" class="list"></div><div id="detail" class="detail">Select a function.</div></div></main>
+<script type="application/json" id="data">__DATA__</script><script>
+const data=JSON.parse(document.getElementById('data').textContent), fns=data.functions, prefix=__PREFIX__;
+const el=(tag,value)=>{const node=document.createElement(tag);node.textContent=value;return node};
+document.getElementById('stats').textContent=`${data.files} Python files · ${fns.length} definitions · ${data.parse_errors.length} parse errors · source SHA-256 ${data.fingerprint.slice(0,12)}`;
+const byId=new Map(fns.map(x=>[x.id,x])), searchText=fns.map(x=>[x.id,x.file,...x.args,...x.locals,...x.fields,
+ ...x.resolved.map(c=>c.name),...x.unresolved.map(c=>c.name)].join(' ').toLowerCase());
+const svgNS='http://www.w3.org/2000/svg';let selectedSvg=null;
+function svgEl(tag,attrs={},value){const n=document.createElementNS(svgNS,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,String(v));
+ if(value!==undefined)n.textContent=value;return n}
+function renderEgo(x){const callers=[...new Set(x.callers.map(c=>c.from))],callees=[...new Set(x.resolved.map(c=>c.to))];
+ const left=callers.slice(0,12),right=callees.slice(0,12),rows=Math.max(left.length,right.length,1),height=Math.max(330,80+rows*62);
+ const svg=svgEl('svg',{viewBox:`0 0 1200 ${height}`,role:'img','aria-label':'Static caller to function to callee map'});
+ svg.append(svgEl('rect',{width:1200,height,fill:'#0b1220'}));const defs=svgEl('defs'),marker=svgEl('marker',{id:'arrow',viewBox:'0 0 10 10',refX:9,refY:5,
+ markerWidth:7,markerHeight:7,orient:'auto-start-reverse'});marker.append(svgEl('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:'#67dfc1'}));defs.append(marker);svg.append(defs);
+ svg.append(svgEl('text',{x:25,y:33,fill:'#b9d2e2','font-size':18},`CALLERS ${left.length}/${callers.length}`));
+ svg.append(svgEl('text',{x:445,y:33,fill:'#b9d2e2','font-size':18},'SELECTED FUNCTION'));
+ svg.append(svgEl('text',{x:825,y:33,fill:'#b9d2e2','font-size':18},`CALLEES ${right.length}/${callees.length}`));
+ const box=(item,bx,by,width,active=false)=>{const group=svgEl('g');group.append(svgEl('rect',{x:bx,y:by,width,height:52,rx:8,
+ fill:active?'#173e4a':'#192b43',stroke:active?'#67dfc1':'#557495','stroke-width':1.4}));
+ group.append(svgEl('text',{x:bx+12,y:by+22,fill:'#f0f6fa','font-size':15,'font-weight':700},item.name.slice(0,43)));
+ group.append(svgEl('text',{x:bx+12,y:by+41,fill:'#b3c8d8','font-size':12},`${item.file}:${item.line}`.slice(0,51)));svg.append(group)};
+ const mid=height/2-26;box(x,415,mid,370,true);
+ for(const [i,id] of left.entries()){const y=59+i*62,item=byId.get(id);if(!item)continue;box(item,20,y,365);
+ svg.append(svgEl('path',{d:`M 385 ${y+26} L 415 ${mid+26}`,stroke:'#67dfc1','stroke-width':1.7,fill:'none','marker-end':'url(#arrow)'}))}
+ for(const [i,id] of right.entries()){const y=59+i*62,item=byId.get(id);if(!item)continue;box(item,815,y,365);
+ svg.append(svgEl('path',{d:`M 785 ${mid+26} L 815 ${y+26}`,stroke:'#67dfc1','stroke-width':1.7,fill:'none','marker-end':'url(#arrow)'}))}
+ const note=`Static references · ${x.guards.length} guards · ${x.raises.length} raises · ${x.unresolved.length} unresolved calls`;
+ svg.append(svgEl('text',{x:415,y:height-18,fill:'#e4b87e','font-size':13},note));
+ const target=document.getElementById('ego');target.replaceChildren(svg);selectedSvg=svg;document.getElementById('save-svg').hidden=false;
+ document.getElementById('map-note').textContent=`${x.id}: ${note}. Diagram shows at most 12 on each side; the detail panel lists all references.`}
+document.getElementById('save-svg').onclick=()=>{if(!selectedSvg)return;const raw=new XMLSerializer().serializeToString(selectedSvg);
+ const url=URL.createObjectURL(new Blob([raw],{type:'image/svg+xml'})),a=document.createElement('a');a.href=url;a.download='source-function-map.svg';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+const detail=document.getElementById('detail');
+function show(x){detail.replaceChildren();detail.append(el('h2',x.name));const a=el('a',x.file+':'+x.line);a.href=prefix+x.file;detail.append(a);
+detail.append(el('p',`Lines ${x.line}–${x.end} · ${x.kind}`));
+for(const [title,items] of [['Parameters',x.args],['Local variables',x.locals],['State fields',x.fields],
+['Guards',x.guards.map(g=>g.line+' '+g.kind+' '+g.expression)],['Raises',x.raises.map(r=>r.line+' '+r.expression)],
+['Calls resolved',x.resolved.map(c=>c.line+' '+c.name+' → '+c.to)],['Calls unresolved',x.unresolved.map(c=>c.line+' '+c.name)],
+['Called by',x.callers.map(c=>c.from+' @'+c.line)]]){detail.append(el('h3',title+' ('+items.length+')'));detail.append(el('pre',items.length?items.join('\\n'):'—'))}
+if(x.doc){detail.append(el('h3','Docstring'));detail.append(el('pre',x.doc))}renderEgo(x)}
+const list=document.getElementById('list');function refresh(){const q=document.getElementById('search').value.toLowerCase().trim();list.replaceChildren();let hits=0;
+for(let i=0;i<fns.length;i++){const x=fns[i];if(q&&!searchText[i].includes(q))continue;hits++;if(hits>200)continue;const b=el('button',x.name);b.append(el('small',x.file+':'+x.line));b.onclick=()=>show(x);list.append(b)}
+document.getElementById('count').textContent=`${hits} matches · showing first ${Math.min(hits,200)}; narrow the search for more`}
+document.getElementById('search').addEventListener('input',refresh);refresh();
+const requested=new URLSearchParams(location.search).get('function');if(requested&&byId.has(requested)){
+ document.getElementById('search').value=requested;refresh();show(byId.get(requested))}</script></html>'''
+    output.write_text(page.replace("__TITLE__", title).replace("__DATA__", payload)
+                      .replace("__PREFIX__", json.dumps(prefix)), encoding="utf-8")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Build offline source atlas for vibe_rescue")
     parser.add_argument("--root", type=Path, default=ROOT)
@@ -311,7 +396,30 @@ def main(argv=None):
     parser.add_argument("--journeys", type=Path)
     parser.add_argument("--out", type=Path)
     parser.add_argument("--check", action="store_true", help="fail when committed atlas is stale")
+    parser.add_argument("--generic", action="store_true", help="index an arbitrary Python target")
+    parser.add_argument("--sources", nargs="+", help="source directories relative to --root (generic mode)")
     args = parser.parse_args(argv)
+    if args.generic:
+        if args.check:
+            parser.error("--check is only available for the curated Vibe Rescue atlas")
+        if not args.sources:
+            parser.error("--generic requires --sources; choose approved source directories")
+        root = args.root.resolve()
+        sources = args.sources
+        if any(not (root / source).resolve().is_relative_to(root) for source in sources):
+            parser.error("--sources must stay inside --root")
+        if any(not (root / source).is_dir() for source in sources):
+            parser.error("every --sources entry must be an existing directory")
+        output = args.out or ROOT / "reports" / "source-explorer.html"
+        output = output.resolve()
+        output.parent.mkdir(parents=True, exist_ok=True)
+        data = index(root, sources=sources, asset_dirs=())
+        output.with_suffix(".json").write_text(json.dumps(data, ensure_ascii=False),
+                                               encoding="utf-8")
+        render_generic(data, root, output)
+        print(f"[EXPLORER] {data['files']} Python files, {len(data['functions'])} definitions "
+              f"→ {output}")
+        return 2 if data["parse_errors"] else 0
     args.journeys = args.journeys or ROOT / ("docs/repo_journeys.en.json" if args.lang == "en"
                                             else "docs/repo_journeys.json")
     args.out = args.out or ROOT / ("docs/assets/repo-explorer.en.html" if args.lang == "en"

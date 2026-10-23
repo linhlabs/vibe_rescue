@@ -19,7 +19,9 @@ __all__ = ["PARSERS", "norm_path", "sev_of_rule"]
 
 def norm_path(p, root):
     try:
-        rel = os.path.relpath(os.path.abspath(p), os.path.abspath(root))
+        base = os.path.abspath(root)
+        full = os.path.abspath(p if os.path.isabs(p) else os.path.join(base, p))
+        rel = os.path.relpath(full, base)
         return rel if not rel.startswith("..") else str(p)
     except Exception:
         return str(p)
@@ -68,7 +70,7 @@ def parse_vulture(text, root):
     return out
 
 
-def parse_radon(text):
+def parse_radon(text, root=None):
     """radon 6.x đổi format: '    F 25:0 main - D (23)' (mới)
     và '    F:25 main - (23)' (cũ) — parse cả hai (bug phát hiện trên target thật)."""
     out = []
@@ -88,7 +90,7 @@ def parse_radon(text):
         out.append({
             "rule": "C901-complexity",
             "severity": "high" if c >= 20 else "medium",
-            "file": cur,
+            "file": norm_path(cur, root) if root is not None else cur,
             "line": int(m.group(1)),
             "message": f"{m.group(2).strip()} complexity {c:.0f}"[:120],
             "evidence": f"cyclo={c}",

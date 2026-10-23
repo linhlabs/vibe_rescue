@@ -410,7 +410,7 @@ def collect_findings(tool, r, root, result):
     if tool == "vulture":
         return PARSERS["vulture"](text + (r.stderr or ""), root), None
     if tool == "radon":
-        return PARSERS["radon"](text), None
+        return PARSERS["radon"](text, root), None
     if tool == "markdownlint-cli":
         data = json.loads(text) if text.strip().startswith(("{", "[")) else None
         if data is None:
