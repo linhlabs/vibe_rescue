@@ -6,7 +6,6 @@ type: software
 authors:
   - family-names: "Nguyễn"
     given-names: "Anh Nguyên"
-    alias: "thusinh1969"
 repository-code: "https://github.com/thusinh1969/vibe_rescue"
 url: "https://thusinh1969.github.io/vibe_rescue/"
 license: MIT
