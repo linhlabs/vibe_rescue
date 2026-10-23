@@ -1,0 +1,3 @@
+# Synthetic example configuration; loader and precedence are intentionally absent.
+support:
+  provider: local-demo

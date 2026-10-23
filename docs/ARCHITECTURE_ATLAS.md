@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable MD013 -->
 
-Architecture Atlas is the first screen for a new engineer. It connects an approved repository's **documented purpose → functional blocks → documented steps → source functions**, then shows control questions for an agent harness or sensitive application. It runs locally without a model or target-code execution. It is an investigation aid, not an automatic architecture or production-readiness certificate.
+The generated **team handoff** is the first screen for a new engineer. It connects an approved repository's **documented purpose → functional blocks → documented steps → source functions**, then frames control questions for an agent harness or sensitive application. Architecture Atlas is the interactive drill-down. Both run locally without a model or target-code execution. Neither is an automatic production-readiness certificate.
 
 ## Generate and read
 
@@ -13,10 +13,13 @@ python scripts/repo_explorer.py --generic \
   --out /path/to/project/VIBE_RESCUE/source-explorer.html
 ```
 
-Choose only directories approved for inspection; replace `src tests` with actual paths. The command writes four files together:
+Choose only directories approved for inspection; replace `src tests` with actual paths. The command writes ten files together:
 
 | File | Use |
 | --- | --- |
+| `handoff.html`, `handoff.vi.html` | Read-first EN/VI handoff: snapshot, every block, source anchors, journeys, control matrix and next probes. |
+| `HANDOFF.md`, `HANDOFF.vi.md` | The same review packet in shareable Markdown. |
+| `REVIEW_WORKSHEET.md`, `REVIEW_WORKSHEET.vi.md` | Assign owners, exact-build receipts and decisions. Created once; reruns preserve reviewer edits. |
 | `architecture.html` | Offline entry: purpose, blocks, connections, journeys, control leads, coverage. Select a block to draw/download its SVG. |
 | `architecture.json` | Same model for tools; includes `file:line` examples and evidence state. |
 | `source-explorer.html` | Python definition detail, parameters, locals, guards, raises, static caller/callee SVG. |
@@ -24,9 +27,17 @@ Choose only directories approved for inspection; replace `src tests` with actual
 
 The root README and named `README.md`, `DESIGN.md`, `ARCHITECTURE.md`, `PIPELINE.md` files under approved source directories are read with a 96 KB per-document and 100-document limit. `--docs relative/path.md` adds another approved Markdown file; unsafe/out-of-root or missing paths fail. Excluded data, audit archives, attachments, logs and `test_e2e` are not indexed. These restrictions apply to both the Python and architecture layers. The JSON contains documentation prose, docstrings and source identifiers; keep a private target's output in its controlled workspace.
 
+The handoff keeps all blocks and selected control cards, including absent
+evidence and unresolved steps. Its Git HEAD and tracked-change count apply only
+when `--root` is a Git root; otherwise the snapshot identity is `unknown`.
+It does not run target tests, inspect live configuration or infer a defect from
+a missing candidate. A reviewer can fill the preserved worksheet and append
+tested findings to a separate assessment; the generated packet remains a
+reproducible source baseline.
+
 ## How the layers are derived
 
-1. **Purpose.** The root README supplies a labelled *documentation claim*. A block takes its own README purpose, then a local Python module docstring, then inherited directory documentation. Every description has an evidence state and source anchor. A docstring or README can be stale; neither is runtime proof.
+1. **Purpose.** The root README supplies a labelled *documentation claim*. A block takes its own README purpose, then a local Python module docstring, then inherited directory documentation. A complete early purpose or “North star” paragraph is selected; wrapped list fragments are ignored. Every description has an evidence state and source anchor. A docstring or README can be stale; neither is runtime proof.
 2. **Blocks.** Approved code files are grouped by directory, splitting large areas when needed. Each block lists member files, indexed Python functions and config/prompt/policy/workflow *paths*. A short function list prioritizes entry-like names and cross-block callers only as navigation hints; the Source Explorer retains every function. The path inventory does not claim that a config or prompt is loaded. Other supported code extensions remain file-level inventory; Python alone gets parameters and calls in this view.
 3. **Connections.** Python AST calls and imports connect blocks when both endpoints resolve to indexed files. Edges from test files are labelled `test_call` or `test_import`, separate from runtime-source `static_call` and `import`. Examples carry callsite/import line and `exact_lexical` or `unique_module_suffix`. A suffix binding is accepted only when one indexed module has that suffix; dynamic `sys.path`, reflection and dependency injection can change actual runtime dispatch.
 4. **Journeys.** Numbered steps under headings such as architecture/pipeline/workflow are copied from the bounded docs. Only exact backtick function/file anchors bind automatically. An unbound step is `unknown`, not absent or implemented by assumption. The first screen intentionally reports the unbound count; a human should trace such steps and maintain a current journey test.
@@ -58,10 +69,10 @@ The HTML's block SVG shows up to seven inbound and seven outbound relations. The
 ## Verification for maintainers
 
 ```bash
-python -m pytest -q tests/test_architecture_atlas.py tests/test_repo_explorer.py
+python -m pytest -q tests/test_architecture_atlas.py tests/test_handoff.py tests/test_repo_explorer.py
 python -m pytest -q
-ruff check scripts/repo_explorer.py scripts/architecture_atlas.py scripts/module_resolution.py tests/test_architecture_atlas.py
+ruff check scripts/repo_explorer.py scripts/architecture_atlas.py scripts/handoff.py scripts/module_resolution.py tests/test_architecture_atlas.py tests/test_handoff.py
 git diff --check
 ```
 
-The focused fixtures cover an exact doc anchor, an unbound step, a cross-block call, a uniquely shortened import, an ambiguous import that remains unresolved, excluded Python scope, HTML escaping and a masker name that must **not** become a safety verdict. Browser inspection should check the overview, one block SVG, source links and the controls/coverage cards at desktop width.
+The focused fixtures cover an exact doc anchor, an unbound step, a cross-block call, a uniquely shortened import, an ambiguous import that remains unresolved, excluded Python scope, HTML escaping and a masker name that must **not** become a safety verdict. Handoff fixtures check EN/VI output, source links and no readiness claim. Browser inspection should check both handoff languages, the Atlas overview, one block SVG, source links and control cards at desktop width.

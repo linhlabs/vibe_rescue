@@ -18,10 +18,12 @@ from pathlib import Path
 try:
     from scripts.architecture_atlas import _safe_file, build, excluded_parts
     from scripts.architecture_atlas import render as render_architecture
+    from scripts.handoff import render as render_handoff
     from scripts.module_resolution import from_base, resolve_qualified, unique_suffixes
 except ModuleNotFoundError:  # direct `python scripts/repo_explorer.py`
     from architecture_atlas import _safe_file, build, excluded_parts
     from architecture_atlas import render as render_architecture
+    from handoff import render as render_handoff
     from module_resolution import from_base, resolve_qualified, unique_suffixes
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -448,9 +450,11 @@ def main(argv=None):
             parser.error(str(exc))
         architecture = output.with_name("architecture.html")
         render_architecture(model, root, architecture)
+        render_handoff(model, root, output.parent)
         print(f"[EXPLORER] {data['files']} Python files, {len(data['functions'])} definitions "
               f"→ {output}; architecture {len(model['blocks'])} blocks, "
-              f"{len(model['journeys'])} documented journeys → {architecture}")
+              f"{len(model['journeys'])} documented journeys → {architecture}; "
+              f"handoff → {output.parent / 'handoff.html'}")
         return 2 if data["parse_errors"] else 0
     args.journeys = args.journeys or ROOT / ("docs/repo_journeys.en.json" if args.lang == "en"
                                             else "docs/repo_journeys.json")

@@ -1,10 +1,22 @@
-# Vibe Rescue: lập bản đồ và sửa an toàn code lộn xộn hoặc do AI viết
+# Vibe Rescue: biến repo lạ thành bản bàn giao cho cả team
 
 [English](README.md) · Tiếng Việt
 
 <!-- markdownlint-disable MD013 -->
 
-**Vibe Rescue** là bộ công cụ giấy phép MIT biến một dự án không ai hiểu thành **bản đồ tìm kiếm được** và **các phát hiện từ scanner cần kiểm tra** (code chết, code chép lặp, phụ thuộc rối, bí mật bị lộ, thư viện cũ). Sau đó, công cụ có thể chuẩn bị **các bản sửa nhỏ, hoàn tác được, chỉ khi bạn đồng ý**.
+**Vibe Rescue** tạo bản bàn giao có link tới source cho team mới tiếp nhận một repo khó hiểu: repo làm gì, các phần nối nhau thế nào, bước xử lý nào ứng với hàm thật và điều gì phải kiểm chứng trước khi hệ thống nhạy cảm được phát hành. Lượt đầu chạy offline, không cần AI. Khi team sẵn sàng, công cụ có thêm scanner và quy trình sửa cần owner duyệt.
+
+## v0.8-preview — có gì mới
+
+- **Một lệnh, cả team có bản bàn giao.** Atlas generic nay tạo handoff HTML và Markdown bằng tiếng Anh và tiếng Việt, cùng phiếu review để team điền ở mỗi ngôn ngữ. Chạy lại không ghi đè phiếu.
+- **Từ mục đích tới code.** Báo cáo nối mục đích theo tài liệu → khối chức năng → callsite Python → hành trình đánh số → đúng hàm và dòng source. Đường dẫn config/prompt, độ phủ và unknown luôn hiện rõ.
+- **Sẵn khung việc review.** Profile agent, swarm, PII/PHI, medical và billing chỉ ra dấu vết source cùng phép thử tiếp theo. Dấu vết không được tự gắn nhãn an toàn hay production-ready; reviewer phải chạy test và trace của target.
+
+![Ảnh chụp bản bàn giao v0.8-preview thực tế sinh từ ví dụ support ticket công khai.](docs/assets/v0.8-handoff.vi.png)
+
+[Mở bản bàn giao mẫu đầy đủ](https://thusinh1969.github.io/vibe_rescue/examples/support_ticket/VIBE_RESCUE/handoff.vi.html) · [Đọc gói Markdown](examples/support_ticket/VIBE_RESCUE/HANDOFF.vi.md) · [Chạy trên repo của bạn](#bắt-đầu-nhanh).
+
+![Cùng bản bàn giao đó: các khối chức năng có link tới source, hàm và unknown.](docs/assets/v0.8-blocks.vi.png)
 
 Dùng khi: tiếp quản dự án legacy, dọn code "vibe coding" hoặc do AI sinh ra, kiểm toán nợ kỹ thuật (technical debt), và đào tạo thành viên mới. Chạy trên mọi dự án Git và lập bản đồ Python, JavaScript/TypeScript, Rust, Go, Java, PHP và C#. Lập bản đồ và kiểm tra dùng công cụ miễn phí, **không cần AI trả phí**.
 
@@ -129,7 +141,7 @@ Mở `reports/atlas/INDEX.md` và đi theo các liên kết.
 python scripts/repo_explorer.py --generic --root /path/to/your/project --sources src tests --out reports/source-explorer.html
 ```
 
-Mở `reports/architecture.html` trước. Chọn một khối để xem nguồn mô tả mục đích, khối liên quan, vị trí gọi, đường dẫn config/prompt/workflow và liên kết tới hàm; có thể tải SVG của khối. `reports/source-explorer.html` đi sâu vào tham số, biến cục bộ, guard, ngoại lệ, caller và callee Python. Cả hai HTML đều có JSON cạnh bên. Thay `src tests` bằng các thư mục source đã duyệt. File mã không phải Python được kiểm kê, nhưng lời gọi hàm chi tiết hiện chỉ có cho Python.
+Mở `reports/handoff.vi.html` trước để cả team đọc; dùng `reports/HANDOFF.vi.md` khi bàn giao qua review/issue. Giao người phụ trách và ghi receipt vào `reports/REVIEW_WORKSHEET.vi.md`; chạy lại vẫn giữ file đó. Bản tiếng Anh cũng được sinh cùng lượt. Từ đó mở `reports/architecture.html` xem khối, callsite và SVG, rồi `reports/source-explorer.html` để đào tham số, guard, ngoại lệ, caller và callee Python. Hai bản đồ có JSON cạnh bên. Thay `src tests` bằng thư mục source đã duyệt. File mã ngoài Python được kiểm kê, nhưng lời gọi hàm chi tiết hiện chỉ có cho Python.
 
 Công cụ đọc có giới hạn các file README/DESIGN/ARCHITECTURE/PIPELINE Markdown trong scope và README gốc. Thêm `--docs path/to/your/design.md` cho tài liệu khác đã duyệt. Thêm `--profile agent`, `--profile swarm`, `--profile pii`, `--profile medical` hoặc `--profile billing` để hiện checklist control tương ứng. Tên hàm hay test khớp chỉ là **đầu mối**; HTML không xác nhận an toàn runtime hay production readiness nếu chưa có trace và fault test. Generator không chạy code target, không gọi LLM. [Sơ đồ quy trình public](docs/assets/vibe-rescue-v1-architecture.html) cho thấy bước khảo sát đi vào các gate sửa code; nội dung sơ đồ bằng tiếng Anh.
 
@@ -351,7 +363,7 @@ Theo thứ tự:
 
 ## Trạng thái và giấy phép
 
-**v0.8-preview** dùng được để khảo sát kiến trúc offline theo scope trên repo khác. [Hợp đồng bản preview](docs/V0.8_PREVIEW.vi.md) ghi rõ Atlas generic chứng minh được gì và phần nào vẫn cần reviewer. Bản control review sâu do người review viết; tool chưa tự tạo phán quyết an toàn tương đương cho mọi team. Sửa code vẫn cần owner duyệt và còn [khoảng trống an toàn](STATUS.md#current-preview-gaps). Công cụ đóng gói có thể chuẩn hóa `0.8.0-preview` thành `0.8.0rc0`.
+**v0.8-preview** tạo bản bàn giao có link tới source từ mọi scope repo được duyệt, kèm phiếu giao người và ghi receipt đúng build. [Hợp đồng bản preview](docs/V0.8_PREVIEW.vi.md) ghi rõ Atlas generic chứng minh được gì và phần nào vẫn cần reviewer. Bản control review sâu do người review viết; tool chưa tự tạo phán quyết an toàn tương đương cho mọi team. Sửa code vẫn cần owner duyệt và còn [khoảng trống an toàn](STATUS.md#current-preview-gaps). Công cụ đóng gói có thể chuẩn hóa `0.8.0-preview` thành `0.8.0rc0`.
 
 Giấy phép: [MIT](LICENSE).
 

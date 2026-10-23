@@ -1,5 +1,28 @@
 # STATUS — vibe_rescue
 
+## 2026-10-23 — Generic team handoff validated locally
+
+- `repo_explorer.py --generic` now writes English and Vietnamese
+  `handoff.html` + `HANDOFF.md` beside the Atlas and Source Explorer. Editable
+  EN/VI review worksheets are created once, so reruns keep assigned owners and
+  receipts. The generated packet includes every block, anchored function leads, documented
+  journeys, control candidates with next probes, config/prompt path inventory,
+  scope/coverage/unknowns and Git snapshot identity when the selected root is
+  a Git root. The packet runs offline and does not execute target code.
+- The public synthetic support-ticket example yields 6 blocks, 8 source
+  relations and 5/5 exact journey bindings; its actual EN/VI handoff pages and
+  block views were captured in `docs/assets/v0.8-handoff.*.png` and
+  `docs/assets/v0.8-blocks.*.png`. 
+- A focused fixture exposed a wrapped-list documentation fragment mistaken for
+  a block purpose. Purpose extraction now prefers a complete early North Star
+  paragraph, retaining its documentation provenance. Full pytest reached
+  100% with exit 0; focused handoff/Atlas tests passed; Ruff, Markdownlint on
+  edited docs and generated demo, local links, browser page errors and 59
+  handoff links per language passed. Source-only public snapshot: 166 files;
+  pinned Gitleaks 8.30.1 found 0 issues in the extracted source tree. The
+  separate snapshot manifest contains content hashes that Gitleaks flags as
+  three generic-key pattern matches, not source leaks.
+
 <a id="current-preview-gaps"></a>
 
 ## 2026-10-23 — v0.8-preview capability boundary
@@ -27,7 +50,7 @@
 - Distribution is source-checkout only. `python -m build --wheel --no-isolation`
   fails because setuptools finds ambiguous top-level packages in the flat
   layout; no wheel or `pip install` claim is made for this preview.
-- Source-only preview snapshot contains 141 files; pinned Gitleaks 8.30.1
+- Source-only preview snapshot contains 166 files; pinned Gitleaks 8.30.1
   scanned the extracted tree with 0 findings (exit 0). This is a pattern scan,
   not a manual publication or privacy review.
 

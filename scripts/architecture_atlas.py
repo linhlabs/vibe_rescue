@@ -85,6 +85,51 @@ def _safe_file(root, path):
     return not any(root.joinpath(*parts[:depth]).is_symlink() for depth in range(1, len(parts)))
 
 
+def _doc_intro(lines):
+    """Choose a complete early purpose paragraph, never a wrapped list fragment."""
+    paragraphs, current, first_line, current_quote = [], [], 0, False
+    in_code = False
+
+    def finish():
+        nonlocal current
+        if current:
+            text = " ".join(current).strip()
+            if len(text) >= 25:
+                excerpt = text if len(text) <= 400 else text[:397].rsplit(" ", 1)[0] + "…"
+                paragraphs.append((excerpt, first_line))
+            current = []
+
+    for n, line in enumerate(lines[:90], 1):
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            finish()
+            in_code = not in_code
+            continue
+        if in_code or not stripped or stripped.startswith(("#", "|", "![")):
+            finish()
+            continue
+        if re.match(r"^(?:[-*+]\s|\d+[.)]\s)", stripped):
+            finish()
+            continue
+        quote_line = stripped.startswith(">")
+        cleaned = stripped.lstrip("> ").strip() if quote_line else stripped
+        if current and quote_line != current_quote:
+            finish()
+        if not current:
+            # A wrapped list item has indentation but no paragraph start.
+            if line[:1].isspace() or cleaned.startswith("["):
+                continue
+            first_line = n
+            current_quote = quote_line
+            current = [cleaned]
+        else:
+            current.append(cleaned)
+    finish()
+    explicit = ("north star", "purpose", "mission", "mục tiêu", "sứ mệnh")
+    return next(((text, line) for text, line in paragraphs if any(
+        token in text.lower()[:90] for token in explicit)), paragraphs[0] if paragraphs else ("", 0))
+
+
 def discover_docs(root, sources, extra=()):
     """Read only bounded, named documentation under approved paths."""
     candidates = {root / "README.md"}
@@ -107,18 +152,7 @@ def discover_docs(root, sources, extra=()):
         raw = path.read_text(encoding="utf-8", errors="replace")
         lines = raw.splitlines()
         title = next((line.lstrip("# ").strip() for line in lines if line.startswith("# ")), path.stem)
-        intro, intro_line = "", 0
-        in_code = False
-        for n, line in enumerate(lines, 1):
-            stripped = line.strip()
-            if stripped.startswith("```"):
-                in_code = not in_code
-            if (in_code or not stripped or stripped.startswith(("#", ">", "-", "*", "|", "![", "["))
-                    or stripped[0].isdigit() and re.match(r"\d+[.)]", stripped)):
-                continue
-            if len(stripped) >= 25:
-                intro, intro_line = stripped[:400], n
-                break
+        intro, intro_line = _doc_intro(lines)
         records.append({"path": path.relative_to(root).as_posix(), "title": title[:120],
                         "purpose": intro, "purpose_line": intro_line, "lines": lines})
     return records, skipped
@@ -409,6 +443,11 @@ def build(root, sources, index_data, extra_docs=(), profiles=()):
     # The profile is a lead, never a classification of actual data handled.
     index_data = {**index_data, "functions_by_id": fn_by_id}
     journeys = _journeys(docs, index_data, file_to_block)
+    named_functions = {fn for block in blocks for fn in block["function_leads"]}
+    named_functions.update(fn for journey in journeys for step in journey["steps"]
+                           for fn in step["functions"])
+    function_anchors = {fn: f"{fn_by_id[fn]['file']}:{fn_by_id[fn]['line']}"
+                        for fn in sorted(named_functions)}
     controls = list(_control_hits(index_data, docs, detected, file_to_block))
     overview = next((d for d in docs if d["path"] == "README.md"), None)
     fingerprint = hashlib.sha256((index_data["fingerprint"] + "\n" + "\n".join(
@@ -420,6 +459,7 @@ def build(root, sources, index_data, extra_docs=(), profiles=()):
             "sources": list(sources), "profiles_candidate": sorted(detected),
             "docs": [{k: v for k, v in doc.items() if k != "lines"} for doc in docs],
             "blocks": blocks, "edges": edges, "journeys": journeys, "controls": controls,
+            "function_anchors": function_anchors,
             "coverage": {"code_files": len(files), "python_functions": len(fn_by_id),
                          "context_assets": len(context_assets),
                          "documents_read": len(docs), "documents_skipped": skipped_docs,

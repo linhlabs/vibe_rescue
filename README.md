@@ -1,10 +1,22 @@
-# Vibe Rescue: map, audit and safely clean up messy or AI-generated code
+# Vibe Rescue: turn an unfamiliar codebase into a team handoff
 
 English · [Tiếng Việt](README.vi.md)
 
 <!-- markdownlint-disable MD013 -->
 
-**Vibe Rescue** is a MIT-licensed toolkit that turns a codebase nobody understands into a **searchable map** and **scanner findings to investigate** (dead code, copy-paste, tangled dependencies, leaked secrets, outdated libraries). It can then prepare **small, reversible fixes, only with your approval**.
+**Vibe Rescue** gives a new team a source-linked handoff for a codebase nobody understands: what it does, how its parts connect, which request steps map to real functions, and what must be verified before a sensitive system can ship. Its first pass runs offline with no AI. Scanner findings and owner-gated repair are available when the team is ready.
+
+## v0.8-preview — what is new
+
+- **One command, a handoff the whole team can use.** The generic Atlas now writes HTML and Markdown handoffs in English and Vietnamese, plus an editable review worksheet in each language. Reruns preserve the team’s worksheet.
+- **From intent to code.** The packet joins documented purpose → functional blocks → Python callsites → numbered journeys → exact function anchors. Config/prompt paths, coverage and unknowns stay visible.
+- **Review work is already framed.** Agent, swarm, PII/PHI, medical and billing profiles list source leads and concrete next probes. A lead is never labelled safe or production-ready; the reviewer must run target-specific tests and traces.
+
+![Actual v0.8-preview team handoff generated from the public synthetic support-ticket example.](docs/assets/v0.8-handoff.en.png)
+
+[Open the complete example handoff](https://thusinh1969.github.io/vibe_rescue/examples/support_ticket/VIBE_RESCUE/handoff.html) · [Read its Markdown packet](examples/support_ticket/VIBE_RESCUE/HANDOFF.md) · [Run it on your own repo](#quick-start).
+
+![The same handoff shows source-linked functional blocks, exact function leads and unknowns.](docs/assets/v0.8-blocks.en.png)
 
 Good for: inheriting a legacy project, cleaning up "vibe-coded" or AI-generated code, auditing technical debt, and onboarding a new developer. It works on any Git project and maps Python, JavaScript/TypeScript, Rust, Go, Java, PHP and C#. Mapping and checking use free tools and need **no paid AI**.
 
@@ -129,7 +141,7 @@ For an **architecture-first** map of why blocks exist, how approved documentatio
 python scripts/repo_explorer.py --generic --root /path/to/your/project --sources src tests --out reports/source-explorer.html
 ```
 
-Open `reports/architecture.html` first. Select a block to see its purpose source, connected blocks, callsites, config/prompt/workflow path leads, and function links; download the selected block's SVG. `reports/source-explorer.html` drills into Python parameters, local variables, guards, raises, callers and callees. Both HTML files have adjacent machine-readable JSON. Replace `src tests` with your approved source directories. The map also inventories non-Python code files, but detailed function calls currently require Python.
+Open `reports/handoff.html` first for the team-facing packet; share `reports/HANDOFF.md` in a review or issue. Assign proof owners in `reports/REVIEW_WORKSHEET.md`; reruns preserve that file. English and Vietnamese versions are generated together. Follow its links to `reports/architecture.html` for blocks, callsites and SVG, then `reports/source-explorer.html` for Python parameters, guards, raises, callers and callees. Both maps have adjacent JSON. Replace `src tests` with your approved source directories. The generic map inventories non-Python files; detailed function calls currently require Python.
 
 The tool reads a bounded set of README/DESIGN/ARCHITECTURE/PIPELINE Markdown files within those source directories and the root README. Add `--docs path/to/your/design.md` for another approved document. Add `--profile agent`, `--profile swarm`, `--profile pii`, `--profile medical` or `--profile billing` to show a relevant control checklist. A matching function name or test is only a **lead**; the HTML keeps runtime safety and production readiness unverified until your team runs traces and fault tests. The generator does not execute the target or call an LLM. See the [public workflow diagram](docs/assets/vibe-rescue-v1-architecture.html) for how exploration feeds the repair gates.
 
@@ -351,7 +363,7 @@ In this order:
 
 ## Status and license
 
-**v0.8-preview** is available for scoped, offline architecture exploration on other repositories. The [preview contract](docs/V0.8_PREVIEW.md) explains what the generic Atlas proves and what remains a reviewer task. A detailed control review is written by a human reviewer; the tool does not generate an equivalent safety verdict for every team. Repair still requires owner approval and has [open safety gaps](STATUS.md#current-preview-gaps). Package tooling may normalize `0.8.0-preview` to `0.8.0rc0`.
+**v0.8-preview** creates a source-linked team handoff from any approved repo scope, with a review worksheet to collect owners and exact-build receipts. The [preview contract](docs/V0.8_PREVIEW.md) explains what the generic Atlas proves and what remains a reviewer task. A detailed control review is written by a human reviewer; the tool does not generate an equivalent safety verdict for every team. Repair still requires owner approval and has [open safety gaps](STATUS.md#current-preview-gaps). Package tooling may normalize `0.8.0-preview` to `0.8.0rc0`.
 
 License: [MIT](LICENSE).
 

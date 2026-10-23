@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from scripts.architecture_atlas import build, render
+from scripts.architecture_atlas import _doc_intro, build, render
 from scripts.repo_explorer import index
 
 
@@ -48,6 +48,19 @@ def test_docs_blocks_calls_and_unbound_steps_are_distinct(tmp_path):
     assert journey["steps"][1]["functions"] == ["src.core.service.run"]
     assert journey["steps"][2]["binding"] == "unknown"
     assert model["coverage"]["journey_steps_unbound"] == 1
+
+
+def test_documented_purpose_uses_complete_north_star_not_wrapped_list_text():
+    text, line = _doc_intro([
+        "# Product", "",
+        "> **North star:** Help a new engineer understand each request path.",
+        "> Keep missing evidence visible to reviewers.", "",
+        "**Current truth:** A version note wraps across lines", "and continues here.", "",
+        "- **Feature** — this line starts a list item that", "  wraps to this misleading fragment.",
+    ])
+    assert line == 3
+    assert text == ("**North star:** Help a new engineer understand each request path. "
+                    "Keep missing evidence visible to reviewers.")
 
 
 def test_mask_name_is_candidate_never_a_safety_verdict(tmp_path):

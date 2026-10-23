@@ -33,7 +33,9 @@ chưa được chứng minh. Danh sách file/hàm hoặc một graph import đ�
    chỉ từ tên hàm `mask` hay một test xanh; cần trace và fault injection.
 6. **Khuyến nghị có thể giao việc.** Mỗi gap nêu tác động, độ tin cậy, bằng
    chứng hoặc lý do chưa có, nơi cần xác minh, test/probe đề xuất, STOP condition
-   và owner. Không biến hàng nghìn warning scanner thành hàng nghìn bug.
+   và owner. Handoff của team có phiếu ghi người phụ trách, receipt theo đúng
+   build và quyết định; chạy lại bản đồ không xóa phần reviewer đã điền. Không
+   biến hàng nghìn warning scanner thành hàng nghìn bug.
 7. **Portable và local-first.** Core chạy deterministic/offline trên Git repo,
    nhiều ngôn ngữ ở mức parser hỗ trợ. Model OpenAI-compatible tự host là tùy
    chọn để diễn giải bằng chứng, không là điều kiện lập bản đồ. Không gửi source,

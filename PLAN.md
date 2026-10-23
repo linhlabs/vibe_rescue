@@ -62,10 +62,12 @@ artifact chứa source target vào repo public.
   9/9 và visual-check.
 - D: catalog control và probe recommendation đã có, mọi mục unverified. Chưa
   có source-to-egress proof hay trace/fault receipt tích hợp, nên chưa đạt gate D.
+  Handoff EN/VI nay tạo tự động từ Atlas; phiếu review giữ owner, receipt và
+  quyết định khi chạy lại. Runtime proof vẫn là việc reviewer phải làm.
 - E: V3 target riêng có nhiều block/quan hệ tĩnh, nhưng phần lớn bước tài liệu
-  chưa bound; báo cáo riêng ghi rõ khoảng trống. Chưa chứng minh một request
-  path end-to-end.
+  chưa bound; báo cáo riêng ghi rõ khoảng trống. Gói handoff generic đã chạy
+  trên target và ví dụ public; chưa chứng minh một request path end-to-end.
 - F: README EN/VI và design doc đã cập nhật; full pytest/Ruff/Markdownlint/
-  link/browser QA của lần Atlas trước pass. Bản `v0.8-preview` ghi rõ hợp đồng
+  link/browser QA của handoff generic pass trên demo public. Bản `v0.8-preview` ghi rõ hợp đồng
   portability và phần reviewer phải làm; review release V1.0 còn mở. Không gắn
   nhãn V1.0 hoàn tất khi D/E còn mở.
