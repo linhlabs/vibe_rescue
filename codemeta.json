@@ -1,0 +1,30 @@
+{
+  "@context": "https://w3id.org/codemeta/3.0",
+  "type": "SoftwareSourceCode",
+  "name": "Vibe Rescue",
+  "description": "Free open-source toolkit to understand, audit and rescue vibe-coded or legacy codebases: source-linked maps, team handoff, static-analysis evidence and human-approved fixes.",
+  "codeRepository": "https://github.com/thusinh1969/vibe_rescue",
+  "url": "https://thusinh1969.github.io/vibe_rescue/",
+  "issueTracker": "https://github.com/thusinh1969/vibe_rescue/issues",
+  "license": "https://spdx.org/licenses/MIT",
+  "version": "0.8.0-preview",
+  "programmingLanguage": "Python",
+  "runtimePlatform": "Python >=3.11",
+  "operatingSystem": "Linux",
+  "author": [
+    {
+      "type": "Person",
+      "givenName": "Anh Nguyên",
+      "familyName": "Nguyễn"
+    }
+  ],
+  "keywords": [
+    "vibe coding",
+    "legacy code",
+    "code audit",
+    "technical debt",
+    "call graph",
+    "static analysis",
+    "AI-generated code"
+  ]
+}

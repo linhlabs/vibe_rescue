@@ -354,6 +354,26 @@ Most detailed documents are written in Vietnamese.
 - [SECURITY.md](SECURITY.md): what is and is not protected.
 - [STATUS.md](STATUS.md): what is finished and what blocks a public release.
 
+## In short (FAQ)
+
+**What is Vibe Rescue?**
+A free, MIT-licensed toolkit that turns an unfamiliar or AI-generated ("vibe-coded") Git repository into a source-linked team handoff: maps of files, functions and calls, a list of concrete problems with file and line, and, only if the owner approves, small reversible fixes.
+
+**Is it free, and does it need an AI?**
+It is free. Mapping and the handoff run offline with no AI. The AI steps (report, plan, repair) are optional and can use Claude Code, Codex, or any OpenAI-style model server, including open models you host. Only one hosted model has been tried so far, on a toy project.
+
+**Does my code leave my machine?**
+Not for mapping and checks, which run locally (third-party checking tools may be downloaded). The optional AI steps send code and findings to whichever AI you choose.
+
+**Which languages does it support?**
+Python, JavaScript/TypeScript, Rust, Go, Java, PHP and C#, with different levels of detail. The generic handoff connects Python functions only.
+
+**Can it fix my code automatically?**
+It prepares small fixes on a separate branch. Every plan, repair and merge needs a human yes, and a file tells you how to undo it. Unattended repair of production code is not approved.
+
+**How is it different from paid vibe-code rescue services?**
+Those are done-for-you human services. Vibe Rescue is a free tool you run yourself, with evidence you can check. It does not replace an engineer's judgment.
+
 ## Contributors
 
 In this order:

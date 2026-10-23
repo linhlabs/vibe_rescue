@@ -354,6 +354,26 @@ Phần lớn tài liệu chi tiết được viết bằng tiếng Việt.
 - [SECURITY.md](SECURITY.md): cái gì được bảo vệ và cái gì không.
 - [STATUS.md](STATUS.md): cái gì đã xong và cái gì đang chặn việc công bố.
 
+## Tóm tắt nhanh (FAQ)
+
+**Vibe Rescue là gì?**
+Bộ công cụ miễn phí, giấy phép MIT, biến một repo Git lạ hoặc do AI viết ("vibe coding") thành bản bàn giao có liên kết tới mã nguồn: bản đồ file, hàm và lời gọi, danh sách vấn đề cụ thể kèm file và dòng, và chỉ khi chủ repo đồng ý mới có bản sửa nhỏ, hoàn tác được.
+
+**Có miễn phí không, có cần AI không?**
+Miễn phí. Lập bản đồ và bản bàn giao chạy offline, không cần AI. Các bước dùng AI (báo cáo, kế hoạch, sửa) là tùy chọn và có thể dùng Claude Code, Codex hoặc bất kỳ server model kiểu OpenAI nào, kể cả model mở bạn tự host. Hiện mới thử một model được host sẵn trên một dự án mẫu nhỏ.
+
+**Code của tôi có rời khỏi máy không?**
+Không với việc lập bản đồ và kiểm tra, vì chúng chạy ngay trên máy (công cụ kiểm tra của bên thứ ba có thể được tải về). Các bước AI tùy chọn gửi code và kết quả kiểm tra tới AI bạn chọn.
+
+**Hỗ trợ những ngôn ngữ nào?**
+Python, JavaScript/TypeScript, Rust, Go, Java, PHP và C#, với mức chi tiết khác nhau. Bản bàn giao chung chỉ nối được các hàm Python.
+
+**Nó có tự sửa code của tôi không?**
+Nó chuẩn bị bản sửa nhỏ trên một nhánh riêng. Mỗi kế hoạch, lần sửa và lần gộp đều cần một người nói đồng ý, và có file hướng dẫn hoàn tác. Tự sửa code production không giám sát chưa được duyệt.
+
+**Khác gì các dịch vụ "cứu code vibe coding" trả phí?**
+Đó là dịch vụ con người làm thay. Vibe Rescue là công cụ miễn phí bạn tự chạy, với bằng chứng bạn kiểm tra được. Nó không thay thế phán đoán của kỹ sư.
+
 ## Người đóng góp
 
 Theo thứ tự:
