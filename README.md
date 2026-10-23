@@ -123,13 +123,15 @@ Open `reports/atlas/INDEX.md` and follow the links.
 - Exit code `2` with the word `INCOMPLETE` means the map exists but some parts are missing. Open `manifest.json` in the same folder to see which.
 - Large Python scopes are split into shard maps automatically; open `python-shards/INDEX.md`. Calls across shards are unresolved. Use `--scope path/to/folder` for a focused journey.
 
-For a searchable source-level ledger of Python functions, parameters, local variables, guards, raises and static callers/callees, run:
+For an **architecture-first** map of why blocks exist, how approved documentation describes the journey, and which Python calls/imports connect those blocks, run:
 
 ```bash
 python scripts/repo_explorer.py --generic --root /path/to/your/project --sources src tests --out reports/source-explorer.html
 ```
 
-Open `reports/source-explorer.html`; the adjacent JSON is machine-readable. Replace `src tests` with the source directories in your project. This is a static index, not a verified runtime sequence.
+Open `reports/architecture.html` first. Select a block to see its purpose source, connected blocks, callsites, config/prompt/workflow path leads, and function links; download the selected block's SVG. `reports/source-explorer.html` drills into Python parameters, local variables, guards, raises, callers and callees. Both HTML files have adjacent machine-readable JSON. Replace `src tests` with your approved source directories. The map also inventories non-Python code files, but detailed function calls currently require Python.
+
+The tool reads a bounded set of README/DESIGN/ARCHITECTURE/PIPELINE Markdown files within those source directories and the root README. Add `--docs path/to/your/design.md` for another approved document. Add `--profile agent`, `--profile swarm`, `--profile pii`, `--profile medical` or `--profile billing` to show a relevant control checklist. A matching function name or test is only a **lead**; the HTML keeps runtime safety and production readiness unverified until your team runs traces and fault tests. The generator does not execute the target or call an LLM. See the [public workflow diagram](docs/assets/vibe-rescue-v1-architecture.html) for how exploration feeds the repair gates.
 
 ### Step 2: find the problems (no AI)
 
@@ -333,6 +335,7 @@ Most detailed documents are written in Vietnamese.
 - [docs/OWNER_PACT.md](docs/OWNER_PACT.md): the promises made to the project owner.
 - [docs/VOYAGE.md](docs/VOYAGE.md) and [docs/PIPELINE.md](docs/PIPELINE.md): every step in detail.
 - [docs/LOGIC_ATLAS.md](docs/LOGIC_ATLAS.md): what the maps can and cannot show.
+- [docs/ARCHITECTURE_ATLAS.md](docs/ARCHITECTURE_ATLAS.md): evidence grades, block/journey links, control review and known gaps.
 - [docs/OUTPUT_PROTOCOL.md](docs/OUTPUT_PROTOCOL.md): how the report for the team is written.
 - [SECURITY.md](SECURITY.md): what is and is not protected.
 - [STATUS.md](STATUS.md): what is finished and what blocks a public release.

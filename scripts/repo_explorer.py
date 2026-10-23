@@ -15,6 +15,15 @@ import tempfile
 import tomllib
 from pathlib import Path
 
+try:
+    from scripts.architecture_atlas import _safe_file, build, excluded_parts
+    from scripts.architecture_atlas import render as render_architecture
+    from scripts.module_resolution import from_base, resolve_qualified, unique_suffixes
+except ModuleNotFoundError:  # direct `python scripts/repo_explorer.py`
+    from architecture_atlas import _safe_file, build, excluded_parts
+    from architecture_atlas import render as render_architecture
+    from module_resolution import from_base, resolve_qualified, unique_suffixes
+
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = ("scripts", "tools/meta", "tests")
 ASSETS = ("agents", "tools/rules", "tools/mcp", "tools/promptfoo", "targets")
@@ -32,7 +41,7 @@ def _attr(node):
 def _source_files(root, directories=SOURCES):
     for directory in directories:
         for path in sorted((root / directory).rglob("*.py")):
-            if path.is_file() and not path.is_symlink() and not {"__pycache__", ".ipynb_checkpoints"}.intersection(path.parts):
+            if _safe_file(root, path):
                 yield path
 
 
@@ -40,7 +49,7 @@ def index(root=ROOT, sources=SOURCES, asset_dirs=ASSETS):
     """Inventory every Python definition and exact static calls in source and tests."""
     root = Path(root).resolve()
     files = list(_source_files(root, sources))
-    records, modules, import_maps, constants, parse_errors = [], {}, {}, {}, []
+    records, modules, module_docs, import_maps, constants, parse_errors = [], {}, {}, {}, {}, []
     digest = hashlib.sha256()
     for path in files:
         rel = path.relative_to(root).as_posix()
@@ -53,15 +62,20 @@ def index(root=ROOT, sources=SOURCES, asset_dirs=ASSETS):
             parse_errors.append({"file": rel, "line": exc.lineno, "error": exc.msg})
             continue
         modules[module] = rel
+        if tree.body and isinstance(tree.body[0], ast.Expr) and isinstance(
+                tree.body[0].value, ast.Constant) and isinstance(tree.body[0].value.value, str):
+            module_docs[rel] = {"text": tree.body[0].value.value.strip().split("\n\n", 1)[0][:400],
+                                "line": tree.body[0].lineno}
         aliases = {}
         for item in tree.body:
             if isinstance(item, ast.Import):
                 for alias in item.names:
                     aliases[alias.asname or alias.name.split(".")[0]] = (
                         alias.name if alias.asname else alias.name.split(".")[0])
-            elif isinstance(item, ast.ImportFrom) and item.module:
+            elif isinstance(item, ast.ImportFrom):
+                base = from_base(module, item.module, item.level)
                 for alias in item.names:
-                    aliases[alias.asname or alias.name] = f"{item.module}.{alias.name}"
+                    aliases[alias.asname or alias.name] = f"{base}.{alias.name}" if base else alias.name
         import_maps[module] = aliases
         constants[module] = sorted({name.id for item in tree.body
                                     if isinstance(item, (ast.Assign, ast.AnnAssign))
@@ -121,6 +135,7 @@ def index(root=ROOT, sources=SOURCES, asset_dirs=ASSETS):
                     walk_body(item.body, prefix + item.name + ".")
         walk_body(tree.body)
     ids = {item["id"] for item in records}
+    suffixes = unique_suffixes(modules)
     for item in records:
         aliases = import_maps[item["module"]]
         resolved, unknown = [], []
@@ -133,10 +148,14 @@ def index(root=ROOT, sources=SOURCES, asset_dirs=ASSETS):
                 candidates.insert(0, aliases[head] + ("." + tail if tail else ""))
             if name.startswith("self."):
                 candidates.insert(0, item["id"].rsplit(".", 1)[0] + name[4:])
-            hit = next((candidate for candidate in candidates if candidate in ids), None) if not shadowed else None
+            match = None if shadowed else next(
+                ((candidate, target) for candidate in candidates
+                 if (target := resolve_qualified(candidate, suffixes)) in ids), None)
             entry = {"name": name, "line": call["line"]}
-            if hit:
-                entry["to"] = hit
+            if match:
+                candidate, target = match
+                entry["to"] = target
+                entry["resolution"] = "unique_module_suffix" if candidate != target else "exact_lexical"
                 resolved.append(entry)
             else:
                 unknown.append(entry)
@@ -160,7 +179,7 @@ def index(root=ROOT, sources=SOURCES, asset_dirs=ASSETS):
             config[name] = sorted(tomllib.loads(path.read_text(encoding="utf-8")))
     return {"fingerprint": digest.hexdigest(), "files": len(files),
             "functions": sorted(records, key=lambda r: (r["file"], r["line"])),
-            "modules": modules, "constants": constants, "assets": assets,
+            "modules": modules, "module_docs": module_docs, "constants": constants, "assets": assets,
             "configs": config, "parse_errors": parse_errors,
             "claim": "Static syntax index of working tree; unresolved/dynamic calls are not runtime evidence."}
 
@@ -383,7 +402,8 @@ const list=document.getElementById('list');function refresh(){const q=document.g
 for(let i=0;i<fns.length;i++){const x=fns[i];if(q&&!searchText[i].includes(q))continue;hits++;if(hits>200)continue;const b=el('button',x.name);b.append(el('small',x.file+':'+x.line));b.onclick=()=>show(x);list.append(b)}
 document.getElementById('count').textContent=`${hits} matches · showing first ${Math.min(hits,200)}; narrow the search for more`}
 document.getElementById('search').addEventListener('input',refresh);refresh();
-const requested=new URLSearchParams(location.search).get('function');if(requested&&byId.has(requested)){
+const params=new URLSearchParams(location.search),query=params.get('q');if(query){document.getElementById('search').value=query;refresh()}
+const requested=params.get('function');if(requested&&byId.has(requested)){
  document.getElementById('search').value=requested;refresh();show(byId.get(requested))}</script></html>'''
     output.write_text(page.replace("__TITLE__", title).replace("__DATA__", payload)
                       .replace("__PREFIX__", json.dumps(prefix)), encoding="utf-8")
@@ -398,6 +418,10 @@ def main(argv=None):
     parser.add_argument("--check", action="store_true", help="fail when committed atlas is stale")
     parser.add_argument("--generic", action="store_true", help="index an arbitrary Python target")
     parser.add_argument("--sources", nargs="+", help="source directories relative to --root (generic mode)")
+    parser.add_argument("--docs", action="append", default=[],
+                        help="additional approved README/design Markdown path (generic mode; repeatable)")
+    parser.add_argument("--profile", action="append", choices=("agent", "swarm", "pii", "medical", "billing"),
+                        default=[], help="control profile to review (generic mode; repeatable)")
     args = parser.parse_args(argv)
     if args.generic:
         if args.check:
@@ -406,8 +430,9 @@ def main(argv=None):
             parser.error("--generic requires --sources; choose approved source directories")
         root = args.root.resolve()
         sources = args.sources
-        if any(not (root / source).resolve().is_relative_to(root) for source in sources):
-            parser.error("--sources must stay inside --root")
+        if any((root / source).is_symlink() or not (root / source).resolve().is_relative_to(root)
+               or excluded_parts(Path(source).parts) for source in sources):
+            parser.error("--sources must stay inside --root and avoid excluded/symlink directories")
         if any(not (root / source).is_dir() for source in sources):
             parser.error("every --sources entry must be an existing directory")
         output = args.out or ROOT / "reports" / "source-explorer.html"
@@ -417,8 +442,15 @@ def main(argv=None):
         output.with_suffix(".json").write_text(json.dumps(data, ensure_ascii=False),
                                                encoding="utf-8")
         render_generic(data, root, output)
+        try:
+            model = build(root, sources, data, extra_docs=args.docs, profiles=args.profile)
+        except (OSError, ValueError) as exc:
+            parser.error(str(exc))
+        architecture = output.with_name("architecture.html")
+        render_architecture(model, root, architecture)
         print(f"[EXPLORER] {data['files']} Python files, {len(data['functions'])} definitions "
-              f"→ {output}")
+              f"→ {output}; architecture {len(model['blocks'])} blocks, "
+              f"{len(model['journeys'])} documented journeys → {architecture}")
         return 2 if data["parse_errors"] else 0
     args.journeys = args.journeys or ROOT / ("docs/repo_journeys.en.json" if args.lang == "en"
                                             else "docs/repo_journeys.json")

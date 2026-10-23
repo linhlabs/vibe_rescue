@@ -1,5 +1,10 @@
 # vibe_rescue — AGENTS (canonical agent contract)
 
+Mục tiêu sản phẩm bền vững: [docs/PRODUCT_NORTH_STAR.md](docs/PRODUCT_NORTH_STAR.md).
+Kế hoạch V1.0 hiện hành: [PLAN.md](PLAN.md). EXPLORE phải nối kiến trúc,
+hành trình và hàm theo bằng chứng; tên hàm/scanner không chứng nhận harness,
+swarm hoặc an toàn PII/PHI/billing.
+
 > **Audience:** mọi LLM/agent mở repo này (Claude · ChatGPT · Codex · future).
 > Đây là contract canonical, không phụ thuộc tool. File tool-specific
 > (`CLAUDE.md`, `GEMINI.md`) CHỈ là con trỏ 1 dòng — không bao giờ lặp nội dung.

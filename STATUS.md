@@ -1,5 +1,35 @@
 # STATUS — vibe_rescue
 
+## 2026-10-23 — V1.0 architecture-first objective in progress
+
+- Owner requested a persistent product objective and plan. Added
+  `docs/PRODUCT_NORTH_STAR.md` and root `PLAN.md`; `AGENTS.md` now points every
+  agent at them. The contract requires architecture → documented journey →
+  source function navigation, plus evidence-graded harness/swarm and
+  PII/PHI/medical/billing control review. A function list or keyword match
+  cannot establish production readiness.
+- The new generic command writes `architecture.html/.json` beside the Python
+  Source Explorer. Bounded docs, module docstrings, directory blocks, static
+  calls/imports, config/prompt/workflow path leads, numbered documented steps,
+  harness/swarm/sensitive control candidates and explicit coverage are present.
+  `docs/ARCHITECTURE_ATLAS.md` records the model and limits. The public workflow
+  diagram passed Archify 9/9 composition checks (0 errors/warnings) and browser
+  containment; its 1440×900 screenshot was visually inspected.
+- Focused Architecture Atlas tests: 8 passed, including root-scope grouping.
+  Full pytest reached 100% with exit 0
+  (runner omitted a totals line); Ruff changed Python files, Markdownlint on
+  both README files and new docs, `git diff --check`, and local-link checks
+  passed. Playwright checked 72 block buttons, the overview SVG, block
+  selection, 4 PII cards, 2 journeys/8 unknown notes, Source Explorer query
+  deep link and a parsable downloaded SVG with no page errors. Exclusion
+  fixtures cover `test_e2e` and generated SOTA-run paths. Final release review
+  and runtime control proofs remain. This is **partial V1.0 progress**, not a
+  production-ready claim.
+- The source-only public snapshot included 139 files. Pinned Gitleaks 8.30.1
+  scanned that extracted source tree with 0 findings (exit 0). A scan of the
+  whole local working folder found 10 leads only in ignored old reports,
+  `.rescue/` and `tools/upstream`; those are excluded from the public snapshot.
+
 > Trạng thái sống của nhánh làm việc. Bằng chứng cũ trong `reports/` là artifact
 > sinh tự động và không thuộc gói public. Các số test bên dưới chỉ đúng tại lần
 > chạy được ghi rõ; không dùng chúng để suy ra trạng thái của commit mới.

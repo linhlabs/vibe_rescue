@@ -123,13 +123,15 @@ Mở `reports/atlas/INDEX.md` và đi theo các liên kết.
 - Mã thoát `2` cùng chữ `INCOMPLETE` nghĩa là bản đồ đã có nhưng thiếu một số phần. Mở `manifest.json` trong cùng thư mục để xem phần nào.
 - Scope Python lớn được tự chia thành nhiều bản đồ; mở `python-shards/INDEX.md`. Lời gọi giữa các shard chưa được giải quyết. Thêm `--scope path/to/folder` để khảo sát một hành trình cụ thể.
 
-Để có chỉ mục tìm kiếm theo hàm Python, tham số, biến cục bộ, điều kiện, ngoại lệ và caller/callee tĩnh, chạy:
+Để có bản đồ **kiến trúc trước, hàm sau**: khối chức năng tồn tại vì sao, tài liệu mô tả hành trình thế nào và lời gọi/import Python nối các khối ra sao, chạy:
 
 ```bash
 python scripts/repo_explorer.py --generic --root /path/to/your/project --sources src tests --out reports/source-explorer.html
 ```
 
-Mở `reports/source-explorer.html`; file JSON cạnh đó dành cho máy đọc. Thay `src tests` bằng thư mục source của dự án. Đây là chỉ mục tĩnh, chưa xác minh chuỗi thực thi runtime.
+Mở `reports/architecture.html` trước. Chọn một khối để xem nguồn mô tả mục đích, khối liên quan, vị trí gọi, đường dẫn config/prompt/workflow và liên kết tới hàm; có thể tải SVG của khối. `reports/source-explorer.html` đi sâu vào tham số, biến cục bộ, guard, ngoại lệ, caller và callee Python. Cả hai HTML đều có JSON cạnh bên. Thay `src tests` bằng các thư mục source đã duyệt. File mã không phải Python được kiểm kê, nhưng lời gọi hàm chi tiết hiện chỉ có cho Python.
+
+Công cụ đọc có giới hạn các file README/DESIGN/ARCHITECTURE/PIPELINE Markdown trong scope và README gốc. Thêm `--docs path/to/your/design.md` cho tài liệu khác đã duyệt. Thêm `--profile agent`, `--profile swarm`, `--profile pii`, `--profile medical` hoặc `--profile billing` để hiện checklist control tương ứng. Tên hàm hay test khớp chỉ là **đầu mối**; HTML không xác nhận an toàn runtime hay production readiness nếu chưa có trace và fault test. Generator không chạy code target, không gọi LLM. [Sơ đồ quy trình public](docs/assets/vibe-rescue-v1-architecture.html) cho thấy bước khảo sát đi vào các gate sửa code; nội dung sơ đồ bằng tiếng Anh.
 
 ### Bước 2: tìm vấn đề (không cần AI)
 
@@ -333,6 +335,7 @@ Phần lớn tài liệu chi tiết được viết bằng tiếng Việt.
 - [docs/OWNER_PACT.md](docs/OWNER_PACT.md): các cam kết với chủ dự án.
 - [docs/VOYAGE.md](docs/VOYAGE.md) và [docs/PIPELINE.md](docs/PIPELINE.md): từng bước chi tiết.
 - [docs/LOGIC_ATLAS.md](docs/LOGIC_ATLAS.md): bản đồ cho thấy được gì và không thấy được gì.
+- [docs/ARCHITECTURE_ATLAS.md](docs/ARCHITECTURE_ATLAS.md): mức bằng chứng, liên kết khối/hành trình, control và giới hạn.
 - [docs/OUTPUT_PROTOCOL.md](docs/OUTPUT_PROTOCOL.md): cách viết báo cáo cho team.
 - [SECURITY.md](SECURITY.md): cái gì được bảo vệ và cái gì không.
 - [STATUS.md](STATUS.md): cái gì đã xong và cái gì đang chặn việc công bố.

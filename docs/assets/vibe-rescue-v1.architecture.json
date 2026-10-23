@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Vibe Rescue: from repository to evidence-backed change",
+    "quality_profile": "showcase",
+    "locale": "en"
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 4,
+    "origin": [56, 95],
+    "gapX": 145,
+    "gapY": 96,
+    "cellW": 210,
+    "cellH": 130
+  },
+  "components": [
+    {"id": "target", "type": "external", "label": "Target repository", "sublabel": "Approved source scope", "row": 0, "col": 0, "size": [205, 84]},
+    {"id": "map", "type": "backend", "label": "Scope and inventory", "sublabel": "Files, languages, exclusions", "row": 0, "col": 1, "size": [205, 84]},
+    {"id": "atlas", "type": "backend", "label": "Architecture Atlas", "sublabel": "Docs → blocks → calls", "row": 0, "col": 2, "size": [205, 84]},
+    {"id": "review", "type": "security", "label": "Control review", "sublabel": "Harness, PII, clinical", "row": 0, "col": 3, "size": [205, 84]},
+    {"id": "proof", "type": "backend", "label": "Evidence and probes", "sublabel": "Findings with coverage", "row": 1, "col": 3, "size": [205, 84]},
+    {"id": "plan", "type": "security", "label": "Owner-scoped plan", "sublabel": "Impact, tests, stop rule", "row": 1, "col": 2, "size": [205, 84]},
+    {"id": "repair", "type": "backend", "label": "Isolated repair", "sublabel": "Small model or human", "row": 1, "col": 1, "size": [205, 84]},
+    {"id": "decision", "type": "external", "label": "Review and decision", "sublabel": "Human release authority", "row": 1, "col": 0, "size": [205, 84]}
+  ],
+  "connections": [
+    {"id": "target-map", "from": "target", "to": "map", "label": "bounded read"},
+    {"id": "map-atlas", "from": "map", "to": "atlas", "label": "source anchors"},
+    {"id": "atlas-review", "from": "atlas", "to": "review", "label": "control leads"},
+    {"id": "review-proof", "from": "review", "to": "proof", "label": "verification needs", "labelAt": [1180, 236]},
+    {"id": "proof-plan", "from": "proof", "to": "plan", "label": "evidence package"},
+    {"id": "plan-repair", "from": "plan", "to": "repair", "label": "approved scope"},
+    {"id": "repair-decision", "from": "repair", "to": "decision", "label": "diff + receipts"}
+  ],
+  "cards": [
+    {"dot": "cyan", "title": "Explore", "items": ["Offline architecture with source anchors", "Unknown links remain visible"]},
+    {"dot": "rose", "title": "Control evidence", "items": ["Names are leads, not safety verdicts", "Fault tests and traces prove behavior"]},
+    {"dot": "emerald", "title": "Release", "items": ["Repair stays inside reviewed scope", "Owner decides after independent review"]}
+  ]
+}
