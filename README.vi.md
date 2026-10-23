@@ -2,6 +2,8 @@
 
 [English](README.md) · Tiếng Việt
 
+Tác giả: [Nguyễn Anh Nguyên](https://github.com/thusinh1969) (Nguyen Anh Nguyen) · miễn phí, mã nguồn mở (MIT)
+
 <!-- markdownlint-disable MD013 -->
 
 **Vibe Rescue** tạo bản bàn giao có link tới source cho team mới tiếp nhận một repo khó hiểu: repo làm gì, các phần nối nhau thế nào, bước xử lý nào ứng với hàm thật và điều gì phải kiểm chứng trước khi hệ thống nhạy cảm được phát hành. Lượt đầu chạy offline, không cần AI. Khi team sẵn sàng, công cụ có thêm scanner và quy trình sửa cần owner duyệt.

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://thusinh1969.github.io/vibe_rescue/sitemap.xml

@@ -2,6 +2,8 @@
 
 English · [Tiếng Việt](README.vi.md)
 
+By [Nguyễn Anh Nguyên](https://github.com/thusinh1969) (Nguyen Anh Nguyen) · free and open source (MIT)
+
 <!-- markdownlint-disable MD013 -->
 
 **Vibe Rescue** gives a new team a source-linked handoff for a codebase nobody understands: what it does, how its parts connect, which request steps map to real functions, and what must be verified before a sensitive system can ship. Its first pass runs offline with no AI. Scanner findings and owner-gated repair are available when the team is ready.

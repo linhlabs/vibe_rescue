@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use Vibe Rescue, please cite it as below."
+title: "Vibe Rescue"
+abstract: "Free open-source toolkit to understand, audit and rescue vibe-coded or legacy codebases: source-linked maps, static-analysis evidence and human-approved fixes."
+type: software
+authors:
+  - family-names: "Nguyễn"
+    given-names: "Anh Nguyên"
+    alias: "thusinh1969"
+repository-code: "https://github.com/thusinh1969/vibe_rescue"
+url: "https://thusinh1969.github.io/vibe_rescue/"
+license: MIT
+version: "0.8.0-preview"
+date-released: 2026-10-23
+keywords:
+  - vibe coding
+  - legacy code
+  - code audit
+  - technical debt
+  - call graph
+  - static analysis
