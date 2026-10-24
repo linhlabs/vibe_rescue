@@ -1,0 +1,3 @@
+docs/assets/*.html linguist-generated=true
+examples/**/VIBE_RESCUE/** linguist-generated=true
+llms-full.txt linguist-generated=true

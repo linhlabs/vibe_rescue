@@ -636,7 +636,7 @@ named `mask` cannot establish safety or production readiness.
 - Before claiming a target is production-ready, its team must independently
   validate the exact build and active configuration with UAT/production traces,
   failure injection, security review and domain-specific test cases. Sensitive
-  artifacts stay in that team's controlled workspace.
+  artifacts stay in that team's own controlled workspace.
 
 ---
 

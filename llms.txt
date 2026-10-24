@@ -6,6 +6,8 @@ Author and maintainer: Nguyễn Anh Nguyên (Nguyen Anh Nguyen).
 Keywords: vibe coding rescue, open source code audit toolkit, legacy code, AI-generated code review, technical debt, call graph, codebase map.
 
 ## Start here
+- [Document index](https://github.com/thusinh1969/vibe_rescue/blob/master/docs/README.md): every document with its language and purpose
+- [AGENTS.md](https://github.com/thusinh1969/vibe_rescue/blob/master/AGENTS.md): map of the repository for agents, commands, what not to read
 - [Full guide](https://github.com/thusinh1969/vibe_rescue/blob/master/docs/GUIDE.md): the longer explanations (Vietnamese: GUIDE.vi.md)
 - [Full text for LLMs](https://thusinh1969.github.io/vibe_rescue/llms-full.txt): README, v0.8 preview contract and security notes in one file
 - [v0.8-preview capability contract](https://github.com/thusinh1969/vibe_rescue/blob/master/docs/V0.8_PREVIEW.md): what another team can run today (Vietnamese: V0.8_PREVIEW.vi.md)

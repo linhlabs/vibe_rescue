@@ -1,39 +1,54 @@
-# vibe_rescue — AGENTS (canonical agent contract)
+# vibe_rescue: agent contract
 
-Mục tiêu sản phẩm bền vững: [docs/PRODUCT_NORTH_STAR.md](docs/PRODUCT_NORTH_STAR.md).
-Kế hoạch V1.0 hiện hành: [PLAN.md](PLAN.md). EXPLORE phải nối kiến trúc,
-hành trình và hàm theo bằng chứng; tên hàm/scanner không chứng nhận harness,
-swarm hoặc an toàn PII/PHI/billing.
+For every LLM or agent that opens this repository (Claude, Codex, ChatGPT, any other). `CLAUDE.md` and `GEMINI.md` are one-line pointers to this file; do not copy content into them.
 
-> **Audience:** mọi LLM/agent mở repo này (Claude · ChatGPT · Codex · future).
-> Đây là contract canonical, không phụ thuộc tool. File tool-specific
-> (`CLAUDE.md`, `GEMINI.md`) CHỈ là con trỏ 1 dòng — không bao giờ lặp nội dung.
+Product goal and plan: [docs/PRODUCT_NORTH_STAR.md](docs/PRODUCT_NORTH_STAR.md), [PLAN.md](PLAN.md). EXPLORE must connect architecture, documented journeys and functions with evidence. A function name or a scanner hit never certifies a harness, a swarm, or PII/PHI/billing safety.
 
-## Onboarding (bắt buộc, theo thứ tự)
+## Map: where is what
 
-1. Đọc hết `README.md` — pipeline MAP → PROVE → PLAN → REPAIR → LOCK và 6 nguyên tắc sắt.
-2. Đọc `STATUS.md` — trạng thái sống: cái gì xong, cái gì đang làm, cái gì pending.
-   Sau mỗi bước bạn thực hiện PHẢI cập nhật file này.
-3. Đọc `docs/RULES.md` — đây là LUẬT, nó override convenience. Nếu vi phạm = chấp nhận REVISE.
-4. Đọc `docs/OWNER_PACT.md` + `docs/VOYAGE.md` — pact với owner: không đổi gì chưa đồng ý,
-   backup+revert, never-break; protocol chạy autonomous, cách trả lời dialogue.
-5. Đọc `docs/PIPELINE.md` — entry/exit criteria từng phase + format finding/plan.
-6. Tìm vai trò của bạn trong `agents/` đúng tên, đọc đầy đủ trước khi làm.
+| path | what it is |
+|---|---|
+| `vr`, `scripts/vr.py` | the one command: `./vr doctor`, `explore`, `check`, `report`, `fix`, `ai`. Starts its own `.venv` |
+| `scripts/` | the engines: `logic_atlas.py` (maps), `repo_explorer.py` (generic handoff), `rescue_voyage.py` (MAP, PROVE, REVIEW, PLAN, REPAIR, LOCK), `rescue_loop.py`, `openai_agent.py` (any OpenAI-style server), `fanout.py`, `merge_findings.py`, `delta_gate.py`, `plan_check.py` |
+| `tools/` | pinned checker list (`manifest.toml`), parsers, custom rules |
+| `agents/` | one prompt per AI role |
+| `config.toml` | which AI plays which role; local override `config.local.toml` (ignored by Git, never holds a key) |
+| `docs/` | documents; the index with languages is [docs/README.md](docs/README.md) |
+| `examples/support_ticket/` | a synthetic example with its generated output committed |
+| `tests/` | pytest suite |
+| `STATUS.md` | the current state only. The dated story is `docs/HISTORY.md` |
 
-## Bạn được phép / không được phép
+## Commands
 
-- ĐƯỢC: đọc mọi file; chạy tool scanner (read-only); chạy `scripts/*` để gom bằng chứng;
-  VIẾT trong `reports/`, `logs_audit/`, và `.rescue/<target>/` **của phiên chạy**;
-  đề xuất thay đổi harness qua diff + cập nhật STATUS.md.
-- KHÔNG ĐƯỢC: ghi/đổi file của repo mục tiêu trong phase MAP/PROVE/PLAN;
-  sửa code target ngoài executor trong worktree rời với plan đã duyệt;
-  tự tuyên bố "xong" — chỉ máy (gates/delta) hoặc reviewer xác nhận;
-  ghi dữ liệu nhạy cảm (PII/PHI, khóa) ra ngoài `.rescue/`, `reports/`, `logs_audit/`.
-- Kết luận về nội dung có ý nghĩa pháp lý bằng regex (xem `docs/RULES.md` R6).
+```bash
+./vr doctor                       # what is missing
+./vr explore PROJECT              # map and team handoff, no AI
+./vr check PROJECT                # findings, no AI
+.venv/bin/python -m pytest -q     # tests (run ./vr doctor once to create .venv)
+.venv/bin/python -m ruff check .  # lint (pip install ruff==0.16.5 into .venv first)
+```
+
+## Read in this order
+
+1. `README.md`, then `STATUS.md`.
+2. `docs/RULES.md` (binding), `docs/OWNER_PACT.md`, `docs/VOYAGE.md`, `docs/PIPELINE.md`.
+3. Your role in `agents/<role>.md`.
+
+Most files in `docs/` are in Vietnamese; [docs/README.md](docs/README.md) says which are English.
+
+## Do not read these (large, generated)
+
+`docs/assets/*` (HTML with embedded fonts, images), `examples/**/VIBE_RESCUE/*.json`, `llms-full.txt`, any `*.html`. Regenerate them, do not edit them by hand. `scripts/build_llms_full.py` rebuilds `llms-full.txt`.
+
+## Allowed and not allowed
+
+- Allowed: read any file; run read-only checkers; run `scripts/*` to collect evidence; write under `VIBE_RESCUE/`, `reports/`, `logs_audit/` and `.rescue/` of a run; propose changes to the harness as a diff and update `STATUS.md`.
+- Not allowed: change files of a target project during MAP, PROVE or PLAN; change target code except as the executor, in a separate worktree, with an approved plan; declare "done" (only the gates or the reviewer decide); write sensitive data (PII/PHI, keys) outside `.rescue/`, `VIBE_RESCUE/`, `reports/`, `logs_audit/`; conclude about legal text with a regex (`docs/RULES.md` R6).
 
 ## Conventions
 
-- Không emoji trong code/file.
-- Tài liệu dùng tiếng Việt; tiếng Anh OK cho audit handoff (logs_audit/).
-- Mọi lỗi loud, rõ [WHAT]/[WHY]/[HOW], fail-closed.
-- Findings có evidence; plan có STOP conditions; đồng ý trước khi cam kết.
+- No emoji in code or files.
+- Keep `STATUS.md` to the current state; put the dated story in `docs/HISTORY.md`. State only what you read in a file, a log or a test result, and say when it was checked.
+- Errors are loud and fail closed: say what, why, how to fix.
+- A finding has evidence (file and line); a plan has stop conditions; ask before committing to a change.
+- README and the full guide exist in English and Vietnamese and must say the same thing.
