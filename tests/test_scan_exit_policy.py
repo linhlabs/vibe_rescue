@@ -29,3 +29,17 @@ def test_jscpd_missing_report_is_not_zero_findings(tmp_path, monkeypatch):
     findings, error = scan.collect_findings("jscpd", r, tmp_path, {})
     assert findings is None
     assert "report" in error
+
+
+@pytest.mark.parametrize("exit_code,stdout,expected", [
+    (3, "x.py:1: unused import 'os' (90% confidence)\n", 0),     # vulture reports dead code with exit 3
+    (3, "", 2),                                                   # exit 3 without a parsable finding is still a failure
+    (9, "x.py:1: unused import 'os' (90% confidence)\n", 2),
+])
+def test_vulture_exit_three_means_dead_code_found(tmp_path, monkeypatch, exit_code, stdout, expected):
+    (tmp_path / "x.py").write_text("import os\n")
+    monkeypatch.setattr(scan, "run", lambda _cmd, cwd=None: subprocess.CompletedProcess(
+        [], exit_code, stdout=stdout, stderr=""))
+    out = tmp_path / "vulture.json"
+    result = {"tool": "vulture", "ok": False, "skipped": None, "error": None, "findings": []}
+    assert scan._run_tool("vulture", out, None, tmp_path, [], result) == expected

@@ -1,0 +1,29 @@
+name: one-minute
+on: [push, pull_request]
+jobs:
+  quick-start:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: The README quick start on a toy project
+        run: |
+          ./vr doctor
+          mkdir /tmp/toy && cd /tmp/toy && git init -q && git config user.email a@b && git config user.name n
+          printf 'import os\n\n\ndef f():\n    return 1\n' > m.py && git add -A && git commit -qm init
+          "$GITHUB_WORKSPACE/vr" explore /tmp/toy
+          "$GITHUB_WORKSPACE/vr" check /tmp/toy
+          test -f /tmp/toy/VIBE_RESCUE/START_HERE.md
+          test -z "$(git -C /tmp/toy status --short)"
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pytest ruff==0.16.5 uv tree-sitter-language-pack==0.13.0
+      - run: ruff check .
+      - run: pytest -q

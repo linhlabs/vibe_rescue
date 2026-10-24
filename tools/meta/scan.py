@@ -334,6 +334,8 @@ FINDING_EXIT_ONE = frozenset({
     "dependency-cruiser", "markdownlint-cli", "semgrep", "osv-scanner",
     "lychee", "promptfoo", "mutmut", "schemathesis",
 })
+# Tools whose "found something" status is not 1. vulture: 0 clean, 3 dead code found (1 and 2 are usage errors).
+FINDING_EXIT_OTHER = {"vulture": frozenset({3})}
 
 
 def _findings_from_json_text(tool, text, stderr, root):
@@ -468,8 +470,9 @@ def _run_tool(tool, out, rules, root, extra, result):
         result["error"] = error
         emit(result, out)
         return 2
-    if r.returncode != 0 and not (r.returncode == 1 and tool in FINDING_EXIT_ONE
-                                 and findings):
+    finding_exit = ((r.returncode == 1 and tool in FINDING_EXIT_ONE)
+                    or r.returncode in FINDING_EXIT_OTHER.get(tool, ()))
+    if r.returncode != 0 and not (finding_exit and findings):
         result["error"] = f"scanner exit={r.returncode} không phải findings exit hợp lệ"
         emit(result, out)
         return 2

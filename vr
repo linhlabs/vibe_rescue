@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# vr: the one command of Vibe Rescue.   ./vr explore ~/my-project
+set -eu
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PY="$HERE/.venv/bin/python"
+if [ ! -x "$PY" ]; then
+  command -v python3 >/dev/null 2>&1 || { echo "vr: python3 not found. Install Python 3.11 or newer, then run ./vr again."; exit 2; }
+  python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)' || { echo "vr: Python 3.11 or newer is required; found $(python3 --version 2>&1)."; exit 2; }
+  echo "vr: first run, preparing a private Python environment in .venv (about 10 seconds)..."
+  python3 -m venv "$HERE/.venv" && "$HERE/.venv/bin/python" -m pip install -q uv tree-sitter-language-pack==0.13.0 || {
+    rm -rf "$HERE/.venv"; echo "vr: setup failed. Check the network, then run ./vr again."; exit 2; }
+fi
+exec "$PY" "$HERE/scripts/vr.py" "$@"
