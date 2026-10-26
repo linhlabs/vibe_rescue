@@ -12,9 +12,9 @@ Language: EN = English, VI = Vietnamese. Most internal documents are Vietnamese.
 | [PIPELINE.md](PIPELINE.md) | VI | MAP, PROVE, PLAN, REPAIR, LOCK: entry and exit criteria, plan format |
 | [VOYAGE.md](VOYAGE.md) | VI | the one-command session with owner gates |
 | [OWNER_PACT.md](OWNER_PACT.md) | VI | the promises to the project owner: nothing changes without a yes |
-| [RULES.md](RULES.md) | VI | binding rules R1 to R12 |
+| [RULES.md](RULES.md) | VI | binding rules R1 to R13 |
 | [AGENT_ROLES.md](AGENT_ROLES.md) | VI | the AI roles and who may write where |
-| [OUTPUT_PROTOCOL.md](OUTPUT_PROTOCOL.md) | VI | format of the plain-language team report |
+| [OUTPUT_PROTOCOL.md](OUTPUT_PROTOCOL.md) | VI | format of the plain-language team report, and how the final output is shown to a PO or business reader (short slide deck plus detailed page) |
 | [JOURNEY_TEMPLATE.md](JOURNEY_TEMPLATE.md) | VI | template to document a run-time journey with evidence |
 | [PRODUCT_NORTH_STAR.md](PRODUCT_NORTH_STAR.md) | VI | the product objective |
 | [PUBLIC_RELEASE.md](PUBLIC_RELEASE.md) | VI | how to make a clean source snapshot for a public release |

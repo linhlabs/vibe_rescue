@@ -90,3 +90,12 @@ Output tiếng Việt cho người dùng cuối; tiếng Anh OK cho audit handof
   không khung framework. (Bài học autogen: 60k sao nhưng 4 tháng không commit.)
 - Mỗi script mới phải có test trong tests/; chạy trước khi merge.
 - Cập nhật STATUS.md thật — không phấn nến.
+
+## R13. Output cuối cùng cho người không đọc code
+
+Khi người đọc cuối là PO hoặc business user, giao 2 bản trỏ qua lại: bản ngắn dạng slide
+cuộn dọc (khoảng 3 phút đọc) và bản chi tiết dạng trang một cột có phụ lục cho dev.
+Viết gạch đầu dòng in đậm ý chính, chia "Hiện tại" / "Cần cải thiện", không tên file hay
+tên hàm ở phần chính, lỗ hổng bảo mật chỉ nói ảnh hưởng. Bản đầu tiên phải đúng luật này,
+không đợi người đọc sửa. Cấu trúc, luật viết, luật hiển thị và checklist: `docs/OUTPUT_PROTOCOL.md`
+mục "Hiển thị output cuối cùng cho PO và business".

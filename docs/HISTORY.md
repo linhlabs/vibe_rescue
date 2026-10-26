@@ -2,6 +2,12 @@
 
 Moved here on 2026-10-24 from `STATUS.md`, which now holds the current state only. Entries are dated and were true when written; do not read them as the state of the latest commit. Passages that described runs on a private target were removed.
 
+## 2026-10-27 — Display rule for the final output to a PO
+
+- First real review for a product owner who does not read code. The first report (about 5,600 words, paragraphs, code terms) was not readable for that owner; the accepted version was about 1,200 words, bullets with the key point in bold, each item split into "Hiện tại" / "Cần cải thiện".
+- The owner asked for two linked versions: a short slide deck read by scrolling, and a detailed one-column page with the developer appendix in a toggle.
+- Written down as RULES R13 and a new section of `docs/OUTPUT_PROTOCOL.md`; `agents/auditor_architecture.md` now follows it. The renderer that builds both HTML pages from Markdown is not in the repo yet.
+
 ## 2026-10-23 — Generic team handoff validated locally
 
 - `repo_explorer.py --generic` now writes English and Vietnamese

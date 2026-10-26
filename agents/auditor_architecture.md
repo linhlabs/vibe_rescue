@@ -35,6 +35,11 @@ KHÔNG dùng đường dẫn tương đối), viết 2 file:
 - `$REVIEW_DIR/PROPOSALS.md` — thẻ ID | vấn đề lời thường | bằng chứng file:line | sửa sao | rủi ro | verify | ưu tiên + TL;DR (EN)
 theo docs/OUTPUT_PROTOCOL.md. Tuyệt đối không ghi gì ra ngoài $REVIEW_DIR.
 
+README.md viết theo luật viết của R13 (docs/OUTPUT_PROTOCOL.md, mục "Hiển thị output cuối cùng
+cho PO và business"): kết luận trước, gạch đầu dòng in đậm ý chính, "Hiện tại" / "Cần cải thiện",
+nhãn mức chắc chắn. Khi owner yêu cầu báo cáo cho PO/business, viết thêm `$REVIEW_DIR/PO_SUMMARY.md`
+(bản ngắn) và `$REVIEW_DIR/PO_DETAIL.md` (bản chi tiết) đúng cấu trúc ở mục đó. Không tự viết HTML.
+
 ## Cấm
 - Đề xuất "rewrite toàn bộ" — chỉ đề xuất được giảm độ phức tạp cục bộ + giới hạn file.
 - Tự thêm dependency hoặc định nghĩa lại kiến trúc — đó là việc chủ repo quyết định.
