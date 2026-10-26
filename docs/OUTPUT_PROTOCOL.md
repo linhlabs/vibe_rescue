@@ -125,10 +125,31 @@ Rủi ro trung bình chỉ có 1 dòng trong bảng tính năng. Việc ưu tiê
 - Mức độ và đánh giá dùng tag màu pastel: đỏ cho Cao và Yếu, vàng cho Trung bình và Tạm, xanh cho Thấp và Tốt.
 - Bản chi tiết: một cột khoảng 760px, khung callout nền nhạt có icon, bảng kẻ ô xám nhạt, phụ lục dạng toggle. Icon vẽ bằng CSS hoặc SVG, không dùng emoji (AGENTS.md).
 
+### Định dạng Markdown để script dựng được
+
+Hai file dùng cùng một khuôn. Mẫu dữ liệu giả: `tests/fixtures/po_report/PO_SUMMARY.md` và `PO_DETAIL.md`.
+
+- Dòng đầu là `# Tên báo cáo`. Tên có chứa tên dự án thì bìa tô phần đó bằng màu nhấn.
+- Ngay dưới tiêu đề là danh sách thuộc tính, mỗi dòng `- **Tên:** giá trị`:
+  - bắt buộc `Ngày` và `Kết luận` (1 câu, hai bản dùng cùng một câu);
+  - nên có `Dự án`, `Người đọc` (bỏ trống thì là PO), `Trạng thái`, `Thời gian đọc`;
+  - `Số chính`: tối đa 4 mục cách nhau bằng `;`, mỗi mục mở đầu bằng con số, ví dụ `24 mã trong thư viện; 5/14 tính năng đánh giá Yếu`. Bỏ dòng này thì bìa tự đếm từ nội dung: số tính năng đánh giá Yếu, số nhóm rủi ro cao, số việc cần làm, số mã P;
+  - thuộc tính khác hiện thêm ở đầu bản chi tiết.
+- Phần nằm giữa danh sách thuộc tính và mục 1 thành khung "Cách đọc" của bản chi tiết.
+- Mục đánh số `## 1. Tóm tắt`. Bản ngắn có mục 1 đến 8 theo thứ tự: Tóm tắt, Sản phẩm giải bài toán gì, Tính năng và đánh giá, Rủi ro cao, Việc cần làm, Phần thừa, Lần này chưa kiểm, Câu hỏi cho team dev; mục số lớn hơn 8 bị bỏ qua. Bản chi tiết có mục 1 đến 9 như danh sách ở trên, mục 9 là phụ lục.
+- `**Hiện tại**` và `**Cần cải thiện**` (có thể thêm chữ, ví dụ `**Cần cải thiện trước nhất**`) đứng riêng một dòng là nhãn chia hai cột.
+- Mỗi tính năng hoặc nhóm rủi ro là một tiêu đề `### 4.1 Tên nhóm (rủi ro cao)`; mức trong ngoặc thành tag màu.
+- Cột `Đánh giá` ghi Tốt, Tạm hoặc Yếu; cột `Rủi ro chính` mở đầu bằng `**Cao.**`, `**Trung bình.**` hoặc `Thấp.`; cột `Ưu tiên` ghi Cao, Trung bình hoặc Thấp. Ba cột này thành tag màu.
+- Mã bằng chứng viết `[P3]` hoặc `[P25, P26]`. Phụ lục là bảng có cột đầu `Mã`, mỗi mã một dòng.
+- Đoạn mở đầu bằng `>` thành khung callout ở bản chi tiết.
+- Trên slide: đoạn văn nằm sau danh sách hoặc bảng cuối cùng của một mục xuống chân slide làm ghi chú; bảng tính năng tự tách 7 dòng mỗi slide; hai nhóm rủi ro liền nhau mà mỗi nhóm có tổng dòng "Hiện tại" và "Cần cải thiện" từ 3 trở xuống thì ghép chung một slide.
+
 ### Dựng và kiểm trước khi giao
 
-- LLM viết nội dung Markdown theo cấu trúc trên; HTML dựng từ Markdown bằng script deterministic, LLM không tự viết HTML. Script dựng chưa có trong repo (STATUS.md, mục Open gaps).
-- Không slide nào tràn chữ ở khổ màn hình 1024 đến 1920px.
-- Mọi mã P mở đúng dòng trong phụ lục.
+- LLM viết nội dung Markdown theo cấu trúc trên, LLM không tự viết HTML. HTML dựng bằng `python3 scripts/po_report.py <thư mục review>`: script đọc `PO_SUMMARY.md` và `PO_DETAIL.md`, ghi `po-summary.html` (slide) và `po-detail.html` (trang chi tiết) vào cùng thư mục. Tên HTML cố định và liên kết giữa hai trang là đường dẫn tương đối, nên hai file phải nằm chung một thư mục. Hai file Markdown đặt tên khác thì dùng `--summary`, `--detail`, `--out-dir`.
+- `./vr report` chép `PO_SUMMARY.md` và `PO_DETAIL.md` (nếu bước review có viết) từ `.rescue/voyage/review/` sang `VIBE_RESCUE/report/`, cạnh `README.md` và `PROPOSALS.md`, rồi dựng `po-summary.html` và `po-detail.html` ở đó. Không đường dẫn output cũ nào đổi.
+- Script dừng, không ghi HTML và liệt kê từng lỗi khi: thiếu mục hoặc thiếu thuộc tính bắt buộc, vượt số dòng tối đa của slide ở "Cấu trúc bản ngắn", mã P không có dòng trong phụ lục, có emoji. Sửa Markdown theo thông báo rồi chạy lại.
+- Không slide nào tràn chữ ở khổ màn hình 1024 đến 1920px. Slide có khổ cố định 1280x720 rồi co theo cửa sổ, nên chữ xuống dòng giống nhau ở mọi khổ màn hình. Script không đo được tràn chữ vì cần trình duyệt: mở `po-summary.html`, thuộc tính `data-overflow` của thẻ `<body>` phải rỗng; slide tràn được ghi tên ở đó và trong console.
+- Mọi mã P mở đúng dòng trong phụ lục: script kiểm khi dựng.
 - In PDF ra đúng số slide, mỗi slide một trang.
 - Quét lại cả hai bản: không có khóa, mật khẩu, dữ liệu cá nhân.

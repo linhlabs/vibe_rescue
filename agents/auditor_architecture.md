@@ -38,7 +38,8 @@ theo docs/OUTPUT_PROTOCOL.md. Tuyệt đối không ghi gì ra ngoài $REVIEW_DI
 README.md viết theo luật viết của R13 (docs/OUTPUT_PROTOCOL.md, mục "Hiển thị output cuối cùng
 cho PO và business"): kết luận trước, gạch đầu dòng in đậm ý chính, "Hiện tại" / "Cần cải thiện",
 nhãn mức chắc chắn. Khi owner yêu cầu báo cáo cho PO/business, viết thêm `$REVIEW_DIR/PO_SUMMARY.md`
-(bản ngắn) và `$REVIEW_DIR/PO_DETAIL.md` (bản chi tiết) đúng cấu trúc ở mục đó. Không tự viết HTML.
+(bản ngắn) và `$REVIEW_DIR/PO_DETAIL.md` (bản chi tiết) đúng cấu trúc ở mục đó. Không tự viết HTML: chạy
+`python3 scripts/po_report.py $REVIEW_DIR`; script báo lỗi thì sửa Markdown theo thông báo rồi chạy lại.
 
 ## Cấm
 - Đề xuất "rewrite toàn bộ" — chỉ đề xuất được giảm độ phức tạp cục bộ + giới hạn file.

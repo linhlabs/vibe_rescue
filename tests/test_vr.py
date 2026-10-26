@@ -85,3 +85,38 @@ def test_ai_openai_writes_config_without_a_key(tmp_path, monkeypatch):
 def test_doctor_runs(capsys):
     assert vr.main(["doctor"]) in (0, 2)
     assert "Vibe Rescue doctor" in capsys.readouterr().out
+
+
+PO_FIXTURES = Path(__file__).parent / "fixtures" / "po_report"
+
+
+def test_report_copies_the_po_markdown_and_builds_both_pages_beside_it(tmp_path):
+    review, dest = tmp_path / "review", tmp_path / "VIBE_RESCUE" / "report"
+    shutil.copytree(PO_FIXTURES, review)
+    dest.mkdir(parents=True)
+    assert vr.copy_po_pages(review, dest, tmp_path / "po.log") is True
+    assert {p.name for p in dest.iterdir()} == {"PO_SUMMARY.md", "PO_DETAIL.md", "po-summary.html", "po-detail.html"}
+    slides = (dest / "po-summary.html").read_text(encoding="utf-8")
+    assert 'href="po-detail.html#P1"' in slides and 'href="po-detail.html"' in slides
+    assert 'href="po-summary.html"' in (dest / "po-detail.html").read_text(encoding="utf-8")
+
+
+def test_report_po_pages_are_optional_but_never_stale_or_half(tmp_path, capsys):
+    review, dest = tmp_path / "review", tmp_path / "report"
+    review.mkdir()
+    dest.mkdir()
+    (dest / "po-summary.html").write_text("old")
+    assert vr.copy_po_pages(review, dest, tmp_path / "po.log") is None
+    assert not list(dest.iterdir())
+    shutil.copy(PO_FIXTURES / "PO_SUMMARY.md", review / "PO_SUMMARY.md")
+    assert vr.copy_po_pages(review, dest, tmp_path / "po.log") is False
+    assert "PO_DETAIL.md" in capsys.readouterr().out
+    assert not list(dest.glob("*.html"))
+
+
+def test_start_here_points_a_product_owner_to_the_po_pages(tmp_path):
+    vr.write_start_here(tmp_path, {"report": {"agent_wrote": True, "po_pages": True}})
+    text = (tmp_path / "START_HERE.md").read_text(encoding="utf-8")
+    assert "`report/README.md`" in text and "`report/po-summary.html`" in text and "`report/po-detail.html`" in text
+    vr.write_start_here(tmp_path, {"report": {"agent_wrote": True}})
+    assert "po-summary" not in (tmp_path / "START_HERE.md").read_text(encoding="utf-8")

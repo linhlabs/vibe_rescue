@@ -38,6 +38,7 @@ Tất cả được ghi vào thư mục `VIBE_RESCUE/` bên trong dự án của
 | `atlas/INDEX.md` | bản đồ cho mọi ngôn ngữ tìm thấy (Python, JavaScript/TypeScript, Rust, Go, Java, PHP, C#); `manifest.json` ở đó cho biết đầy đủ đến đâu | kỹ sư |
 | `check/findings.md` | danh sách vấn đề kèm file, dòng và luật | kỹ sư |
 | `report/README.md`, `PROPOSALS.md` | báo cáo AI bằng lời thường, mỗi vấn đề một thẻ (sau Bước 3) | cả team |
+| `report/po-summary.html`, `po-detail.html` | slide ngắn và trang chi tiết cho PO, dựng từ `PO_SUMMARY.md` và `PO_DETAIL.md` khi bước review của AI có viết hai file này | PO |
 
 ## v0.8-preview — có gì mới
 

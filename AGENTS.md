@@ -9,7 +9,7 @@ Product goal and plan: [docs/PRODUCT_NORTH_STAR.md](docs/PRODUCT_NORTH_STAR.md),
 | path | what it is |
 |---|---|
 | `vr`, `scripts/vr.py` | the one command: `./vr doctor`, `explore`, `check`, `report`, `fix`, `ai`. Starts its own `.venv` |
-| `scripts/` | the engines: `logic_atlas.py` (maps), `repo_explorer.py` (generic handoff), `rescue_voyage.py` (MAP, PROVE, REVIEW, PLAN, REPAIR, LOCK), `rescue_loop.py`, `openai_agent.py` (any OpenAI-style server), `fanout.py`, `merge_findings.py`, `delta_gate.py`, `plan_check.py` |
+| `scripts/` | the engines: `logic_atlas.py` (maps), `repo_explorer.py` (generic handoff), `rescue_voyage.py` (MAP, PROVE, REVIEW, PLAN, REPAIR, LOCK), `rescue_loop.py`, `openai_agent.py` (any OpenAI-style server), `fanout.py`, `merge_findings.py`, `delta_gate.py`, `plan_check.py`, `po_report.py` (PO slides and detailed page from Markdown, RULES R13) |
 | `tools/` | pinned checker list (`manifest.toml`), parsers, custom rules |
 | `agents/` | one prompt per AI role |
 | `config.toml` | which AI plays which role; local override `config.local.toml` (ignored by Git, never holds a key) |

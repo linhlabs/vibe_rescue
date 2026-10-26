@@ -26,6 +26,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 PY_TOOLS = "ruff,vulture,radon,bandit"
 OUT_NAME = "VIBE_RESCUE"
+PO_MD = ("PO_SUMMARY.md", "PO_DETAIL.md")  # RULES R13, written by the review beside README.md
+PO_HTML = ("po-summary.html", "po-detail.html")  # fixed names from scripts/po_report.py
 
 
 def say(msg=""):
@@ -129,8 +131,13 @@ def write_start_here(out, s):
         en += ["## 2. Problems found (not done yet)", "- Run `./vr check PROJECT`.", ""]
         vi += ["## 2. Vấn đề tìm thấy (chưa chạy)", "- Chạy `./vr check PROJECT`.", ""]
     if rp:
-        en += ["## 3. AI report (done)", f"- Written by an AI: {rp.get('agent_wrote')}. Read `report/README.md` (one page), then `report/PROPOSALS.md` (one card per problem).", ""]
-        vi += ["## 3. Báo cáo AI (đã xong)", f"- Do AI viết: {rp.get('agent_wrote')}. Đọc `report/README.md` (một trang), rồi `report/PROPOSALS.md` (mỗi vấn đề một thẻ).", ""]
+        en += ["## 3. AI report (done)", f"- Written by an AI: {rp.get('agent_wrote')}. Read `report/README.md` (one page), then `report/PROPOSALS.md` (one card per problem)."]
+        vi += ["## 3. Báo cáo AI (đã xong)", f"- Do AI viết: {rp.get('agent_wrote')}. Đọc `report/README.md` (một trang), rồi `report/PROPOSALS.md` (mỗi vấn đề một thẻ)."]
+        if rp.get("po_pages"):
+            en.append("- For a product owner: `report/po-summary.html` (slides, about 3 minutes), then `report/po-detail.html` (detailed page, developer appendix folded).")
+            vi.append("- Cho PO: `report/po-summary.html` (slide, khoảng 3 phút), rồi `report/po-detail.html` (bản chi tiết, phụ lục cho dev thu gọn).")
+        en.append("")
+        vi.append("")
     else:
         en += ["## 3. AI report and fix (optional)", "- `./vr ai claude` or `./vr ai openai ...`, then `./vr report PROJECT` and `./vr fix PROJECT --test \"your test command\"`.", ""]
         vi += ["## 3. Báo cáo AI và sửa (tùy chọn)", "- `./vr ai claude` hoặc `./vr ai openai ...`, rồi `./vr report PROJECT` và `./vr fix PROJECT --test \"lệnh test của bạn\"`.", ""]
@@ -138,6 +145,23 @@ def write_start_here(out, s):
 
 
 # ------------------------------------------------------------------------------------------ commands
+def copy_po_pages(review, dest, log):
+    """Copy the PO short and detailed versions (RULES R13) if the review wrote them, and build their HTML beside them.
+    Returns None when there are none, else whether both pages were built."""
+    for name in PO_MD + PO_HTML:
+        (dest / name).unlink(missing_ok=True)  # never leave pages from an earlier run
+    present = [name for name in PO_MD if (review / name).exists()]
+    for name in present:
+        shutil.copy(review / name, dest / name)
+    if not present:
+        return None
+    if len(present) < len(PO_MD):
+        say(f"  [FAILED] PO pages: {review} has only {present[0]}; the PO output needs both {' and '.join(PO_MD)} (docs/OUTPUT_PROTOCOL.md)")
+        return False
+    ok, _, _ = step("PO pages: slides and detailed page", [sys.executable, str(SCRIPTS / "po_report.py"), str(dest)], log)
+    return ok
+
+
 def cmd_doctor(_a):
     say("Vibe Rescue doctor\n")
     rows = []
@@ -315,14 +339,19 @@ def cmd_report(a):
             shutil.copy(review / name, dest / name)
     if (review / "EVIDENCE").is_dir():
         shutil.copytree(review / "EVIDENCE", dest / "EVIDENCE", dirs_exist_ok=True)
+    po = copy_po_pages(review, dest, out / "logs" / "po_report.log")
     wrote = "agent_wrote=True" in log.read_text(encoding="utf-8", errors="replace")
     state = load_state(out)
     state["check"] = read_check(project, out)
-    state["report"] = {"agent_wrote": wrote}
+    state["report"] = {"agent_wrote": wrote, "po_pages": po is True}
     save_state(out, state)
     say(f"\nAI wrote the report: {wrote}" + ("" if wrote else "  (False = a fill-in template from the machine results; check ./vr doctor and the AI setup)"))
     say(f"Read {dest / 'README.md'} then {dest / 'PROPOSALS.md'}")
-    return 0 if wrote else 1
+    if po:
+        say(f"For a product owner: {dest / PO_HTML[0]} (slides), then {dest / PO_HTML[1]} (detailed page)")
+    elif po is False:
+        say(f"PO pages were not built. Fix {' and '.join(PO_MD)} in {dest} as said above (no AI needed), then: python3 {SCRIPTS / 'po_report.py'} {dest}")
+    return 0 if wrote and po is not False else 1
 
 
 def cmd_fix(a):

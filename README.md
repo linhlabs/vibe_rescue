@@ -38,6 +38,7 @@ All of it is written into `VIBE_RESCUE/` inside your project.
 | `atlas/INDEX.md` | maps for every language found (Python, JavaScript/TypeScript, Rust, Go, Java, PHP, C#); `manifest.json` there says how complete they are | engineers |
 | `check/findings.md` | the problem list with file, line and rule | engineers |
 | `report/README.md`, `PROPOSALS.md` | the AI report in plain words, one card per problem (after Step 3) | the team |
+| `report/po-summary.html`, `po-detail.html` | short slides and a detailed page for a product owner, built from `PO_SUMMARY.md` and `PO_DETAIL.md` when the AI review wrote them | product owner |
 
 ## v0.8-preview — what is new
 
