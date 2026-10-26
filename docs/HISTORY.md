@@ -2,6 +2,13 @@
 
 Moved here on 2026-10-24 from `STATUS.md`, which now holds the current state only. Entries are dated and were true when written; do not read them as the state of the latest commit. Passages that described runs on a private target were removed.
 
+## 2026-10-27 — Renderer for the PO output
+
+- `scripts/po_report.py` reads `PO_SUMMARY.md` and `PO_DETAIL.md` and writes two self-contained HTML files: 16:9 slides stacked vertically (scroll to read, scaled to the window, one slide per page in print) and a one-column Notion-style page with the developer appendix in a toggle. A [Pn] code on either page opens row Pn of the appendix; the cover and the detailed page link to each other.
+- Generalized from two scripts written for the first PO review, which hard-coded that report's title, numbers and emoji. Title, date, verdict and cover numbers now come from a property list under the Markdown title; icons are SVG. The Markdown format is in `docs/OUTPUT_PROTOCOL.md`, with a synthetic example in `tests/fixtures/po_report/`.
+- Fails closed with every problem listed: missing section or property, more lines than a slide holds, a [Pn] with no appendix row, an emoji.
+- Checked on the real review converted to this format (kept outside the repo): 11 slides, no overflow in headless Chrome at 1024, 1440 and 1920 px, 11 PDF pages, 40 of 40 P codes resolve. The first render overflowed on the feature-table slide; table rows on slides were made shorter and one lead line moved below the table.
+
 ## 2026-10-27 — Display rule for the final output to a PO
 
 - First real review for a product owner who does not read code. The first report (about 5,600 words, paragraphs, code terms) was not readable for that owner; the accepted version was about 1,200 words, bullets with the key point in bold, each item split into "Hiện tại" / "Cần cải thiện".
