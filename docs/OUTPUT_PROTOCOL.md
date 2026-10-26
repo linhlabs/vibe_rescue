@@ -146,9 +146,10 @@ Hai file dùng cùng một khuôn. Mẫu dữ liệu giả: `tests/fixtures/po_r
 
 ### Dựng và kiểm trước khi giao
 
-- LLM viết nội dung Markdown theo cấu trúc trên, LLM không tự viết HTML. HTML dựng bằng `python3 scripts/po_report.py <thư mục review>`: script đọc `PO_SUMMARY.md` và `PO_DETAIL.md`, ghi `PO_SUMMARY.html` (slide) và `PO_DETAIL.html` (trang chi tiết) vào cùng thư mục. Hai file đặt tên khác thì dùng `--summary`, `--detail`, `--out-dir`.
+- LLM viết nội dung Markdown theo cấu trúc trên, LLM không tự viết HTML. HTML dựng bằng `python3 scripts/po_report.py <thư mục review>`: script đọc `PO_SUMMARY.md` và `PO_DETAIL.md`, ghi `po-summary.html` (slide) và `po-detail.html` (trang chi tiết) vào cùng thư mục. Tên HTML cố định và liên kết giữa hai trang là đường dẫn tương đối, nên hai file phải nằm chung một thư mục. Hai file Markdown đặt tên khác thì dùng `--summary`, `--detail`, `--out-dir`.
+- `./vr report` chép `PO_SUMMARY.md` và `PO_DETAIL.md` (nếu bước review có viết) từ `.rescue/voyage/review/` sang `VIBE_RESCUE/report/`, cạnh `README.md` và `PROPOSALS.md`, rồi dựng `po-summary.html` và `po-detail.html` ở đó. Không đường dẫn output cũ nào đổi.
 - Script dừng, không ghi HTML và liệt kê từng lỗi khi: thiếu mục hoặc thiếu thuộc tính bắt buộc, vượt số dòng tối đa của slide ở "Cấu trúc bản ngắn", mã P không có dòng trong phụ lục, có emoji. Sửa Markdown theo thông báo rồi chạy lại.
-- Không slide nào tràn chữ ở khổ màn hình 1024 đến 1920px. Slide có khổ cố định 1280x720 rồi co theo cửa sổ, nên chữ xuống dòng giống nhau ở mọi khổ màn hình. Script không đo được tràn chữ vì cần trình duyệt: mở `PO_SUMMARY.html`, thuộc tính `data-overflow` của thẻ `<body>` phải rỗng; slide tràn được ghi tên ở đó và trong console.
+- Không slide nào tràn chữ ở khổ màn hình 1024 đến 1920px. Slide có khổ cố định 1280x720 rồi co theo cửa sổ, nên chữ xuống dòng giống nhau ở mọi khổ màn hình. Script không đo được tràn chữ vì cần trình duyệt: mở `po-summary.html`, thuộc tính `data-overflow` của thẻ `<body>` phải rỗng; slide tràn được ghi tên ở đó và trong console.
 - Mọi mã P mở đúng dòng trong phụ lục: script kiểm khi dựng.
 - In PDF ra đúng số slide, mỗi slide một trang.
 - Quét lại cả hai bản: không có khóa, mật khẩu, dữ liệu cá nhân.

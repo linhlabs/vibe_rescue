@@ -60,7 +60,7 @@ def test_slides_follow_the_short_structure():
     assert "Phân tích <em>sổ hẹn khám mẫu</em>" in cover
     assert "Dùng nội bộ được. Chưa mở cho khách." in cover
     assert _metrics(cover) == ["120", "3/9", "3", "4"]
-    assert 'class="detail-link" href="PO_DETAIL.html"' in cover
+    assert 'class="detail-link" href="po-detail.html"' in cover
     assert "Phần 3 · 1/2" in s and "Phần 3 · 2/2" in s
     assert s.count('<div class="pair">') == 1 and s.count('<div class="cols">') == 2
     assert '<span class="tag weak">Yếu</span>' in s and '<span class="tag high">Cao</span>' in s
@@ -72,11 +72,11 @@ def test_every_p_code_opens_its_appendix_row_and_pages_link_both_ways():
     res = po_report.build(*_md())
     rows = set(re.findall(r'<tr id="(P\d+)"', res.detail_html))
     assert rows == {f"P{i}" for i in range(1, 6)}
-    from_slides = set(re.findall(r'href="PO_DETAIL\.html#(P\d+)"', res.summary_html))
+    from_slides = set(re.findall(r'href="po-detail\.html#(P\d+)"', res.summary_html))
     in_page = set(re.findall(r'href="#(P\d+)"', res.detail_html))
     assert from_slides and from_slides <= rows
     assert in_page and in_page <= rows
-    assert 'href="PO_SUMMARY.html"' in res.detail_html
+    assert 'href="po-summary.html"' in res.detail_html
     assert res.codes == 5
 
 
@@ -143,7 +143,7 @@ def test_cli_writes_both_pages_or_nothing(tmp_path, capsys):
     review = tmp_path / "review"
     shutil.copytree(FIX, review)
     assert po_report.main([str(review)]) == 0
-    assert (review / "PO_SUMMARY.html").is_file() and (review / "PO_DETAIL.html").is_file()
+    assert (review / "po-summary.html").is_file() and (review / "po-detail.html").is_file()
     assert "slides=10" in capsys.readouterr().out
 
     broken = tmp_path / "broken"

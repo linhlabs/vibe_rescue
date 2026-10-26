@@ -6,13 +6,15 @@ The agent writes PO_SUMMARY.md (short) and PO_DETAIL.md (detailed) in the struct
 docs/OUTPUT_PROTOCOL.md, section "Hiển thị output cuối cùng cho PO và business". This
 script turns them into two self-contained HTML files (no network, no external asset):
 
-  PO_SUMMARY.html  16:9 slides stacked vertically, read by scrolling, scaled to the
+  po-summary.html  16:9 slides stacked vertically, read by scrolling, scaled to the
                    window, one slide per page when printed to PDF
-  PO_DETAIL.html   one-column Notion-style page: properties, callouts, pastel tags,
+  po-detail.html   one-column Notion-style page: properties, callouts, pastel tags,
                    ruled tables, developer appendix in a toggle
 
-A code such as [P3] on either page opens row P3 of the appendix in PO_DETAIL.html. The
-cover links to the detailed page and the detailed page links back.
+The names are fixed and the links between the two pages are relative, so both files
+stay together in one folder: ./vr report copies them to VIBE_RESCUE/report/. A code
+such as [P3] on either page opens row P3 of the appendix in po-detail.html. The cover
+links to the detailed page and the detailed page links back.
 
 Fails closed (exit 2, every problem listed with its fix, no HTML written) when the
 Markdown breaks the structure: a missing section, more items than a slide holds, a [Pn]
@@ -31,6 +33,8 @@ import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
+SUMMARY_HTML = "po-summary.html"
+DETAIL_HTML = "po-detail.html"
 SUMMARY_SECTIONS = 8
 DETAIL_SECTIONS = 9  # the last one is the developer appendix
 ROWS_PER_SLIDE = 7
@@ -737,15 +741,13 @@ def build(summary_md, detail_md, summary_name="PO_SUMMARY.md", detail_name="PO_D
     if problems:
         raise ReportError(problems)
 
-    summary_html_name = Path(summary_name).with_suffix(".html").name
-    detail_html_name = Path(detail_name).with_suffix(".html").name
-    slides, n = render_slides(s, detail_html_name, s_metrics, len(ids))
-    page = render_detail(d, summary_html_name, d_metrics)
-    return Result(summary_html_name, detail_html_name, slides, page, n, len(ids), notes)
+    slides, n = render_slides(s, DETAIL_HTML, s_metrics, len(ids))
+    page = render_detail(d, SUMMARY_HTML, d_metrics)
+    return Result(SUMMARY_HTML, DETAIL_HTML, slides, page, n, len(ids), notes)
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Build PO_SUMMARY.html (slides) and PO_DETAIL.html (one-column page) "
+    ap = argparse.ArgumentParser(description=f"Build {SUMMARY_HTML} (slides) and {DETAIL_HTML} (one-column page) "
                                              "from the two PO Markdown files of RULES R13.")
     ap.add_argument("review_dir", nargs="?", type=Path, help="folder holding PO_SUMMARY.md and PO_DETAIL.md; HTML is written there")
     ap.add_argument("--summary", type=Path, help="short version (slides)")
